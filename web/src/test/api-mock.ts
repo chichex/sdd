@@ -7,12 +7,14 @@ type Reply = { status: number; body: unknown } | 'pending'
 
 export interface ApiMock {
   calls: Array<{ method: string; url: string }>
+  detalles: Map<string, unknown>
   queueWorkspace: (...replies: Array<Workspace | { status: number; body: unknown }>) => void
   holdRefresh: () => () => void
 }
 
 export function mockApi(first: Workspace | { status: number; body: unknown }): ApiMock {
   const calls: ApiMock['calls'] = []
+  const detalles = new Map<string, unknown>()
   const workspaces: Reply[] = [toReply(first)]
   let last: Reply = toReply(first)
   let refreshGate: Promise<void> | null = null
@@ -30,11 +32,16 @@ export function mockApi(first: Workspace | { status: number; body: unknown }): A
       return json(202, { fetchedAt: '2026-10-27T12:00:00Z' })
     }
     if (url === '/api/health') return json(200, { ok: true, version: '9.9.9', root: '/ws' })
+    if (url.startsWith('/api/trabajos/')) {
+      const detalle = detalles.get(decodeURIComponent(url.slice('/api/trabajos/'.length)))
+      return detalle === undefined ? json(404, { error: 'trabajo no encontrado' }) : json(200, detalle)
+    }
     return json(404, { error: 'no encontrado' })
   })
   vi.stubGlobal('fetch', fetchMock)
   return {
     calls,
+    detalles,
     queueWorkspace: (...replies) => {
       workspaces.splice(0, workspaces.length, ...replies.map(toReply))
     },

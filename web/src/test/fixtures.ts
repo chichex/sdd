@@ -1,6 +1,6 @@
 // Datos de prueba con la forma de /api/workspace. Las referencias usan números
 // de dos cifras: el gate de hex de CA-26 contaría «#» seguido de tres.
-import type { Nodo, Trabajo, Workspace } from '@/lib/api'
+import type { Detalle, Nodo, Trabajo, Workspace } from '@/lib/api'
 
 const refs = { issue: null, grill: null, spec: null, pr: null }
 
@@ -76,4 +76,20 @@ export function workspace(over: Partial<Workspace> = {}): Workspace {
     trabajos: [stack, enPR, idea],
     ...over,
   }
+}
+
+export const detalleStack: Detalle = {
+  ...stack,
+  gantt: [
+    { rama: 'principal', etapa: 'run', inicio: '2026-10-17T10:00:00Z', fin: '2026-10-17T12:00:00Z', estado: 'con PR' },
+    { rama: 'principal', etapa: 'pr', inicio: '2026-10-17T12:00:00Z', fin: '2026-10-20T10:00:00Z', estado: 'validado' },
+    { rama: 'principal', etapa: 'mergeado', inicio: '2026-10-20T10:00:00Z', fin: null, estado: '2/3' },
+    { rama: 'run-1', etapa: 'run', inicio: '2026-10-17T04:00:00Z', fin: '2026-10-17T06:00:00Z', estado: 'fallado (interrupted)' },
+  ],
+  links: {
+    issue: 'https://github.com/o/a/issues/57',
+    prs: [21, 22, 23].map((n) => ({ numero: n, url: `https://github.com/o/a/pull/${n}` })),
+    grills: ['/ws/o/a/.sdd/grills/2026-10-01-sombras.md'],
+    specs: ['/ws/o/a/.sdd/specs/sombras.md'],
+  },
 }

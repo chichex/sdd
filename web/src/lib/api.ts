@@ -64,7 +64,31 @@ export interface Workspace {
   trabajos: Trabajo[]
 }
 
-export class ApiError extends Error {}
+export interface Barra {
+  rama: string
+  etapa: Etapa
+  inicio: string
+  fin: string | null
+  estado: string
+}
+export interface Links {
+  issue: string | null
+  prs: Array<{ numero: number; url: string | null }>
+  grills: string[]
+  specs: string[]
+}
+export interface Detalle extends Trabajo {
+  gantt: Barra[]
+  links: Links
+}
+
+export class ApiError extends Error {
+  status: number | null
+  constructor(message: string, status: number | null = null) {
+    super(message)
+    this.status = status
+  }
+}
 
 type Obj = Record<string, unknown>
 
@@ -163,7 +187,7 @@ export function parseWorkspace(v: unknown): Workspace {
 
 async function getJSON(url: string, init?: RequestInit): Promise<unknown> {
   const res = await fetch(url, init)
-  if (!res.ok) throw new ApiError(`${url}: HTTP ${res.status}`)
+  if (!res.ok) throw new ApiError(`${url}: HTTP ${res.status}`, res.status)
   return res.json() as Promise<unknown>
 }
 
@@ -179,4 +203,30 @@ export async function postRefresh(): Promise<string | null> {
 export async function fetchHealth(): Promise<{ version: string; root: string }> {
   const o = obj(await getJSON('/api/health'), 'health')
   return { version: str(o.version, 'health.version'), root: str(o.root, 'health.root') }
+}
+
+function parseDetalle(v: unknown): Detalle {
+  const o = obj(v, 'detalle')
+  const links = obj(o.links, 'links')
+  return {
+    ...parseTrabajo(o),
+    gantt: arr(o.gantt, 'gantt', (b) => {
+      const bo = obj(b, 'barra')
+      return { rama: str(bo.rama, 'barra.rama'), etapa: etapa(bo.etapa, 'barra.etapa'), inicio: str(bo.inicio, 'barra.inicio'), fin: optStr(bo.fin, 'barra.fin'), estado: str(bo.estado, 'barra.estado') }
+    }),
+    links: {
+      issue: optStr(links.issue, 'links.issue'),
+      prs: arr(links.prs, 'links.prs', (p) => {
+        const po = obj(p, 'pr')
+        return { numero: Number(po.numero), url: optStr(po.url, 'pr.url') }
+      }),
+      grills: arr(links.grills, 'links.grills', (x) => str(x, 'grill')),
+      specs: arr(links.specs, 'links.specs', (x) => str(x, 'spec')),
+    },
+  }
+}
+
+/** Detalle de un trabajo; un id desconocido rechaza con ApiError de status 404. */
+export async function fetchTrabajo(id: string): Promise<Detalle> {
+  return parseDetalle(await getJSON(`/api/trabajos/${encodeURIComponent(id)}`))
 }

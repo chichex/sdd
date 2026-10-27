@@ -8,10 +8,11 @@ import { ListaTrabajos } from '@/components/ListaTrabajos'
 import { NavegacionCelular, NavegacionDesktop } from '@/components/Navegacion'
 import { Refresh } from '@/components/Refresh'
 import { Sidebar } from '@/components/Sidebar'
+import { Detalle } from '@/components/detalle/Detalle'
 import { useHealth, useLocationPath, useMediaQuery, useNow, useRefresh, useTema } from '@/hooks/ui'
 import { useWorkspace } from '@/hooks/useWorkspace'
 import type { Trabajo, Workspace } from '@/lib/api'
-import { navigate, readFilters, trabajoPath, writeFilters, type Filters } from '@/lib/router'
+import { filtersQuery, navigate, readFilters, trabajoFromPath, trabajoPath, writeFilters, type Filters } from '@/lib/router'
 
 function conteos(ws: Workspace | null) {
   const counts = new Map<string, number>()
@@ -20,8 +21,9 @@ function conteos(ws: Workspace | null) {
 }
 
 export default function App() {
-  const { search } = useLocationPath()
+  const { pathname, search } = useLocationPath()
   const filters = readFilters(search)
+  const detalleId = trabajoFromPath(pathname)
   const { data, error, reload } = useWorkspace(filters.filtro)
   const health = useHealth()
   const [tema, setTema] = useTema()
@@ -71,6 +73,16 @@ export default function App() {
           </Banner>
         )}
         <main className="min-w-0 flex-1">{contenido}</main>
+        {detalleId && (
+          <Detalle
+            key={detalleId}
+            id={detalleId}
+            desktop={desktop}
+            version={data?.scannedAt ?? null}
+            hoy={now}
+            onClose={() => navigate(`/${filtersQuery(filters)}`)}
+          />
+        )}
         {!desktop && (
           <Sidebar
             open={menu}
