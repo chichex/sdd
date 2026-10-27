@@ -214,8 +214,12 @@ Protocolo de prueba humana (CA-27, CA-28, CA-30, CA-31, CA-32, CA-33, CA-34):
 - 2026-10-27 [DEVIATION] CA-23: `sin-login` se detecta por la salida de error de `gh` (`gh auth login`, `Bad credentials`, HTTP 401) y no con un `gh auth status` aparte, para sostener la consulta única por repo y por poll de CA-24. Un repo cuyo remote no resuelve en GitHub (`Could not resolve to a Repository`) cuenta como `sin-remote`. `--no-github` reporta `reason: "desactivado"`, que no es una falla. No cambia el alcance.
 - 2026-10-27 [DEVIATION] CA-20: un nodo Publicado `sin dato local` no adelanta la etapa del trabajo (no prueba que se haya publicado); `taggeado` sí. Un PR mergeado o cerrado sin merge muestra `mergeado` o `cerrado` como sub-estado de su nodo PR. Las respuestas grabadas de `testdata/gh/` son sintéticas con la forma real de `gh api graphql` (el repo es público y no se copia contenido de repos privados); los 7 rollups del gate sí son copia literal. No cambia el alcance.
 
+- 2026-10-27 [DEVIATION] Inferencia 17: `components.json` se escribió a mano (estilo `new-york`, Radix y Lucide) y se corrió `npx shadcn@4.22.1 add button select badge dialog sheet tooltip skeleton sonner`, en vez de `npx shadcn init`. El `init` 4.22 pide un preset interactivo y su default (Nova) trae la fuente Geist, que el design system prohíbe (sin fuentes externas). El kit usa `cn` (helper oficial de shadcn, repo `shadcn-ui/cn`) y `radix-ui`; se quitó `next-themes`: el Toaster recibe el tema del visor. No cambia el alcance.
+- 2026-10-27 [DEVIATION] CA-26: además de los tokens de la tabla, `index.css` define `--color-overlay` con el valor `rgb(0 0 0 / 0.5)` de la sección Dialog / Sheet del doc, y una capa `@theme inline` que mapea los nombres de shadcn (`background`, `popover`, `muted`…) a los tokens de la tabla, como pide «con sus tokens mapeados a los de arriba». No son colores nuevos. No cambia el alcance.
+- 2026-10-27 [DEVIATION] CA-31: el skeleton dura hasta el primer snapshot con `scanning:false`, como dice el CA. El escaneo progresivo existe en la API (`scanning:true` con los repos ya leídos), pero la UI no dibuja el parcial. En desktop el board se muestra con los dos filtros (CA-28); la Lista de trabajos es solo de celular. `npm test` no se sumó al workflow de CI: lo registra `/sdd-init --update`. No cambia el alcance.
+
 ## Resultado de ejecucion (2026-10-27 · HEAD por capa)
-Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba` · capa 3/5 `b50c1d9`.
+Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba` · capa 3/5 `b50c1d9` · capa 4/5 `d9f9971`.
 
 | CA | Capa | Estado | Evidencia |
 |---|---|---|---|
@@ -259,3 +263,15 @@ Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd
 | POL-no-any-ts | 3/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
 | POL-gofmt | 3/5 | cumplida | `gofmt -l .` vacío |
 | POL-no-panic | 3/5 | cumplida | `git grep -n 'panic(' …` vacío |
+| CA-26 | 4/5 | verificado | `cd web && npm test`: `src/tokens.test.ts` (lee la tabla `### Color` del design system: 29 tokens con su valor claro bajo `@theme` y el oscuro bajo `prefers-color-scheme` y `data-theme="dark"`; familias, radios y sombras) verde; `npm run build` ok; `git grep -IhoE '#([0-9a-fA-F]{3}){1,2}' -- 'web/src/**' ':!web/src/index.css' \| wc -l` = 0; `components.json` y los 8 componentes del kit en `web/src/components/ui/` |
+| CA-27 | 4/5 | verificado (lógica) · pendiente humano (aspecto) | `cd web && npm test`: `Sidebar.test.tsx` (abre con Repo, Mostrar, Tema y pie; Esc cierra y devuelve el foco a la hamburguesa; elegir repo cierra y escribe `?repo`), `App.test.tsx` (Refresh hace `POST /api/refresh`, muestra «…» con `aria-busy`, toast al terminar; tema persiste en `localStorage`) verdes. Aspecto: protocolo humano, pasos 1, 2 y 6 |
+| CA-28 | 4/5 | verificado (estructura) · pendiente humano (aspecto) | `cd web && npm test`: `Board.test.tsx` (siete carriles con nombre y conteo, «Sin trabajos en Publicado», una tira por trabajo en orden de `ultimaActividad`, ramas, stacks `n/N`, nodo `stale`) verde. Aspecto: protocolo humano, paso 1 |
+| CA-29 | 4/5 | verificado | `cd web && npm test`: `filtros.test.tsx` (lee `?repo` y `?filtro` al cargar; cambiar el filtro escribe la URL con `replaceState` sin sumar historia; el Select lista los repos con su conteo y escribe `?repo`) verde |
+| CA-30 | 4/5 | pendiente humano | NULA: protocolo humano paso 6 (celular por LAN: lista de una línea, Sheet, sin zoom, safe-area). Implementado: `ListaTrabajos` (<768 px), cabecera de celular, `viewport-fit=cover`, inputs ≥16 px en `pointer: coarse` |
+| CA-31 | 4/5 | verificado (lógica) · pendiente humano (aspecto) | `cd web && npm test`: `App.test.tsx` (skeleton hasta `scanning:false`, Banner warning con Reintentar → `POST /api/refresh`, Banner error que conserva el último dato, EmptyState con `sdd --dir <otra carpeta>`, refetch por `snapshot` de `/api/stream` y reconexión tras un corte) verde. Aspecto: protocolo humano, paso 5 |
+| CA-32 | 4/5 | verificado (aria-label, sin select nativo, flechas) · pendiente humano (Tab, foco, contraste) | `grep -rn '<select' web/src` vacío; `aria-label` «Menú», «Actualizar» y radiogroup «Tema» en el fuente; `App.test.tsx` lo confirma por rol; `Board.test.tsx` (flechas mueven el foco, Enter abre el detalle) verde. Resto: protocolo humano, paso 3 |
+| POL-commits | 4/5 | cumplida | gate de `git log` vacío |
+| POL-max-lineas-archivo | 4/5 | cumplida | gate de `wc -l` vacío |
+| POL-no-any-ts | 4/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
+| POL-gofmt | 4/5 | cumplida | `gofmt -l .` vacío |
+| POL-no-panic | 4/5 | cumplida | `git grep -n 'panic(' …` vacío |
