@@ -55,6 +55,9 @@ type Poller struct {
 
 	mu       sync.Mutex
 	inflight *call
+	// applyMu serializa OnResult: los resultados se aplican en el orden en que
+	// terminaron sus consultas.
+	applyMu sync.Mutex
 }
 
 func (p *Poller) clock() Clock {
@@ -82,6 +85,8 @@ func (p *Poller) Run(ctx context.Context) {
 }
 
 // Refresh consulta ya, o espera la consulta en vuelo y devuelve su resultado.
+// Una consulta deja de estar en vuelo cuando termina de consultar: un pedido
+// que llega mientras se aplican sus resultados dispara una consulta nueva.
 func (p *Poller) Refresh(ctx context.Context) Result {
 	p.mu.Lock()
 	if c := p.inflight; c != nil {
@@ -98,12 +103,14 @@ func (p *Poller) Refresh(ctx context.Context) Result {
 	p.mu.Unlock()
 
 	c.res = p.poll(ctx)
-	if p.OnResult != nil {
-		p.OnResult(c.res)
-	}
+	p.applyMu.Lock()
 	p.mu.Lock()
 	p.inflight = nil
 	p.mu.Unlock()
+	if p.OnResult != nil {
+		p.OnResult(c.res)
+	}
+	p.applyMu.Unlock()
 	close(c.done)
 	return c.res
 }

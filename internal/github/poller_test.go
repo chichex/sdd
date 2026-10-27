@@ -155,3 +155,49 @@ func TestCache_RutaYRoundTrip(t *testing.T) {
 		t.Fatalf("LoadCache de un repo sin caché no falló")
 	}
 }
+
+// Un refresh que llega cuando la consulta ya terminó y solo se están aplicando
+// sus resultados no se fusiona con ella: dispara una consulta nueva, y los
+// resultados se aplican en orden.
+func TestPoller_RefreshMientrasSeAplicaConsultaDeNuevo(t *testing.T) {
+	gh := &fake.Runner{T: t, Dir: "../../testdata/gh"}
+	applying := make(chan struct{})
+	release := make(chan struct{})
+	var mu sync.Mutex
+	var applied []time.Time
+	first := true
+	p := &Poller{Runner: gh, Clock: &fakeClock{}, Interval: DefaultInterval,
+		Repos: func() []string { return []string{"chichex/waica"} },
+		OnResult: func(r Result) {
+			mu.Lock()
+			wasFirst := first
+			first = false
+			mu.Unlock()
+			if wasFirst {
+				close(applying)
+				<-release
+			}
+			mu.Lock()
+			applied = append(applied, r.FetchedAt)
+			mu.Unlock()
+		}}
+	go p.Refresh(context.Background())
+	<-applying
+	second := make(chan Result, 1)
+	go func() { second <- p.Refresh(context.Background()) }()
+	deadline := time.Now().Add(2 * time.Second)
+	for gh.CountFor("waica") < 2 && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
+	got := gh.CountFor("waica")
+	close(release)
+	<-second
+	if got != 2 {
+		t.Fatalf("consultas = %d mientras se aplicaba la primera, want 2 (el refresh no se fusiona con una consulta terminada)", got)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if len(applied) != 2 {
+		t.Fatalf("resultados aplicados = %d, want 2 en orden", len(applied))
+	}
+}
