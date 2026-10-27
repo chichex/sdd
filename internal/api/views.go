@@ -12,13 +12,14 @@ type githubView struct {
 }
 
 type repoView struct {
-	ID              string   `json:"id"`
-	Nombre          string   `json:"nombre"`
-	Rutas           []string `json:"rutas"`
-	SinGit          bool     `json:"sinGit"`
-	Remote          *string  `json:"remote"`
-	LineasInvalidas int      `json:"lineasInvalidas"`
-	Errores         []string `json:"errores"`
+	ID              string     `json:"id"`
+	Nombre          string     `json:"nombre"`
+	Rutas           []string   `json:"rutas"`
+	SinGit          bool       `json:"sinGit"`
+	Remote          *string    `json:"remote"`
+	LineasInvalidas int        `json:"lineasInvalidas"`
+	Errores         []string   `json:"errores"`
+	GitHub          githubView `json:"github"`
 }
 
 type workspaceJSON struct {
@@ -48,8 +49,10 @@ func workspaceView(snap workspace.Snapshot, trabajos []model.Trabajo) workspaceJ
 	repos := make([]repoView, 0, len(snap.Repos))
 	for _, d := range snap.Repos {
 		errores := append(append([]string{}, d.Repo.Errores...), d.Errores...)
+		gh := snap.RepoGitHub[d.Repo.ID]
 		repos = append(repos, repoView{ID: d.Repo.ID, Nombre: d.Repo.Nombre, Rutas: d.Repo.Rutas, SinGit: d.Repo.SinGit,
-			Remote: optional(d.Repo.Remote), LineasInvalidas: d.LineasInvalidas, Errores: errores})
+			Remote: optional(d.Repo.Remote), LineasInvalidas: d.LineasInvalidas, Errores: errores,
+			GitHub: githubView{OK: gh.OK, Reason: optional(gh.Reason), FetchedAt: optional(gh.FetchedAt)}})
 	}
 	return workspaceJSON{
 		Root:      snap.Root,

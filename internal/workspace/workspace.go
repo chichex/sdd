@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chichex/sdd/internal/github"
 	"github.com/chichex/sdd/internal/model"
 	"github.com/chichex/sdd/internal/scan"
 )
@@ -17,9 +18,12 @@ const DefaultWatchInterval = 2 * time.Second
 
 // Config configura el servicio. ReadRepo es opcional: nil usa scan.Read.
 type Config struct {
-	Root          string
-	WatchInterval time.Duration
-	ReadRepo      func(scan.Repo) scan.Data
+	Root           string
+	WatchInterval  time.Duration
+	ReadRepo       func(scan.Repo) scan.Data
+	GitHub         github.Runner
+	GitHubInterval time.Duration
+	CacheDir       string
 }
 
 // GitHubStatus es el estado de la fuente GitHub; FetchedAt vacío es sin dato.
@@ -31,12 +35,13 @@ type GitHubStatus struct {
 
 // Snapshot es una foto consistente del estado.
 type Snapshot struct {
-	Root      string
-	ScannedAt string
-	Scanning  bool
-	GitHub    GitHubStatus
-	Repos     []scan.Data
-	Trabajos  []model.Trabajo
+	Root       string
+	ScannedAt  string
+	Scanning   bool
+	GitHub     GitHubStatus
+	RepoGitHub map[string]GitHubStatus
+	Repos      []scan.Data
+	Trabajos   []model.Trabajo
 }
 
 // Service es el dueño del estado en vivo.
@@ -51,6 +56,11 @@ type Service struct {
 	scannedAt string
 	scanning  bool
 	subs      map[chan struct{}]struct{}
+	poller    *github.Poller
+	gh        map[string]*github.Snapshot
+	ghStatus  map[string]repoStatus
+	tags      map[string]model.Tags
+	polled    bool
 }
 
 // New crea el servicio; Run lo pone en marcha.
@@ -61,14 +71,28 @@ func New(cfg Config) *Service {
 	if cfg.WatchInterval <= 0 {
 		cfg.WatchInterval = DefaultWatchInterval
 	}
-	return &Service{cfg: cfg, now: time.Now, data: map[string]scan.Data{}, stamps: map[string]string{},
-		scanning: true, subs: map[chan struct{}]struct{}{}}
+	s := &Service{cfg: cfg, now: time.Now, data: map[string]scan.Data{}, stamps: map[string]string{},
+		scanning: true, subs: map[chan struct{}]struct{}{}, gh: map[string]*github.Snapshot{},
+		ghStatus: map[string]repoStatus{}, tags: map[string]model.Tags{}}
+	if cfg.GitHub != nil {
+		s.poller = &github.Poller{Runner: cfg.GitHub, Interval: cfg.GitHubInterval, Repos: s.githubRepos, OnResult: s.applyGitHub}
+	}
+	return s
 }
 
 // Run hace el escaneo inicial y después observa los repos hasta que ctx se
 // cancela. Es un proceso long-lived: su dueño es quien cancela ctx.
 func (s *Service) Run(ctx context.Context) error {
 	s.scanAll(ctx)
+	var wg sync.WaitGroup
+	defer wg.Wait()
+	if s.poller != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			s.poller.Run(ctx) // termina al cancelar ctx
+		}()
+	}
 	ticker := time.NewTicker(s.cfg.WatchInterval)
 	defer ticker.Stop()
 	for {
@@ -90,6 +114,7 @@ func (s *Service) scanAll(ctx context.Context) {
 	s.mu.Lock()
 	s.repos, s.scanning = repos, true
 	s.mu.Unlock()
+	s.loadCaches()
 	s.publish()
 	for _, r := range repos {
 		if ctx.Err() != nil {
@@ -132,7 +157,7 @@ func (s *Service) rebuild() {
 	inputs := make([]model.RepoInput, 0, len(s.repos))
 	for _, r := range s.repos {
 		if d, ok := s.data[r.ID]; ok {
-			inputs = append(inputs, model.RepoInput{Data: d})
+			inputs = append(inputs, s.inputFor(d))
 		}
 	}
 	s.trabajos = model.Build(inputs)
@@ -154,13 +179,15 @@ func (s *Service) Snapshot() Snapshot {
 		}
 		repos = append(repos, d)
 	}
+	global, perRepo := s.githubStatus()
 	return Snapshot{
-		Root:      s.cfg.Root,
-		ScannedAt: s.scannedAt,
-		Scanning:  s.scanning,
-		GitHub:    GitHubStatus{Reason: "desactivado"},
-		Repos:     repos,
-		Trabajos:  s.trabajos,
+		Root:       s.cfg.Root,
+		ScannedAt:  s.scannedAt,
+		Scanning:   s.scanning,
+		GitHub:     global,
+		RepoGitHub: perRepo,
+		Repos:      repos,
+		Trabajos:   s.trabajos,
 	}
 }
 

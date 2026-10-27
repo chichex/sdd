@@ -3,33 +3,46 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/chichex/sdd/internal/model"
 	"github.com/chichex/sdd/internal/workspace"
 )
 
-// Source es de donde la API lee el estado.
+// Source es de donde la API lee el estado: la foto actual, los avisos de
+// cambio y el refresh manual.
 type Source interface {
 	Snapshot() workspace.Snapshot
+	Subscribe() (<-chan struct{}, func())
+	Refresh(ctx context.Context) string
 }
+
+// DefaultPing es cada cuánto el stream SSE manda un comentario de vida.
+const DefaultPing = 30 * time.Second
 
 // Server sirve /api/*.
 type Server struct {
 	src     Source
 	version string
+	ping    time.Duration
 }
 
 // New crea el server de la API.
-func New(src Source, version string) *Server { return &Server{src: src, version: version} }
+func New(src Source, version string) *Server {
+	return &Server{src: src, version: version, ping: DefaultPing}
+}
 
 // Register monta las rutas de la API en mux.
 func (s *Server) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/health", s.health)
 	mux.HandleFunc("GET /api/workspace", s.workspace)
 	mux.HandleFunc("GET /api/trabajos/{id...}", s.trabajo)
+	mux.HandleFunc("POST /api/refresh", s.refresh)
+	mux.HandleFunc("GET /api/stream", s.stream)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -77,4 +90,10 @@ func (s *Server) trabajo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	writeError(w, http.StatusNotFound, "trabajo no encontrado: "+id)
+}
+
+// refresh consulta GitHub ya (fusionándose con una consulta en vuelo) y
+// responde 202 con el fetchedAt resultante cuando termina.
+func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusAccepted, map[string]*string{"fetchedAt": optional(s.src.Refresh(r.Context()))})
 }

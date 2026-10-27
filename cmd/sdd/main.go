@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/chichex/sdd/internal/api"
+	"github.com/chichex/sdd/internal/github"
 	"github.com/chichex/sdd/internal/workspace"
 	"github.com/chichex/sdd/web"
 )
@@ -32,6 +33,9 @@ func main() {
 	port := flag.Int("port", 4321, "puerto")
 	dir := flag.String("dir", ".", "carpeta cuyos subdirectorios se escanean buscando .sdd/project.md")
 	watch := flag.Duration("watch-interval", workspace.DefaultWatchInterval, "cada cuánto se revisan los logs y artefactos locales")
+	ghInterval := flag.Duration("github-interval", github.DefaultInterval, "cada cuánto se consulta GitHub por repo")
+	cacheDir := flag.String("cache-dir", "", "carpeta de caché de los snapshots de GitHub (default: la caché del usuario)")
+	noGitHub := flag.Bool("no-github", false, "no consultar GitHub: solo lo local")
 	flag.Parse()
 
 	root, err := filepath.Abs(*dir)
@@ -41,7 +45,16 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	svc := workspace.New(workspace.Config{Root: root, WatchInterval: *watch})
+	cfg := workspace.Config{Root: root, WatchInterval: *watch, GitHubInterval: *ghInterval, CacheDir: *cacheDir}
+	if !*noGitHub {
+		cfg.GitHub = github.ExecRunner{}
+	}
+	if cfg.CacheDir == "" {
+		if dir, err := os.UserCacheDir(); err == nil {
+			cfg.CacheDir = dir
+		}
+	}
+	svc := workspace.New(cfg)
 	mux := http.NewServeMux()
 	api.New(svc, version).Register(mux)
 	mux.Handle("/", spaHandler(web.Dist()))
