@@ -39,6 +39,9 @@ func derive(repo scan.Repo, grp *group) Trabajo {
 	d.specNodes()
 	d.runNodes()
 	d.prNodes()
+	if d.principal == nil {
+		d.principal = []Nodo{}
+	}
 	tr := Trabajo{
 		ID:     trabajoID(repo.ID, grp.anchor),
 		Repo:   repo.ID,
