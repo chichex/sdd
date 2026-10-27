@@ -210,8 +210,12 @@ Protocolo de prueba humana (CA-27, CA-28, CA-30, CA-31, CA-32, CA-33, CA-34):
 - 2026-10-27 [DEVIATION] Plan de verificacion: `testdata/mkworkspace.sh` no copia `testdata/tracking/*.md` a los repos. Esos fixtures nombran `owner/repo#9` y sumarían trabajos ajenos, rompiendo el conteo de 12 de CA-9. Copia en cambio artefactos sintéticos de `testdata/workspace/` que se suman a trabajos existentes (spec de `#203` en el árbol y en el common-dir, grill de platform en el common-dir). Los 21 fixtures de tracking se verifican en CA-3. No cambia el alcance.
 - 2026-10-27 [DEVIATION] CA-8: cuando el log nombra un grill o una spec en eventos de run sin registrar su transición (por ejemplo `waica#203`, que no tiene `grill.*` ni `spec.*`), el trabajo muestra el nodo igual: Grill `finalizado` (una spec sale de un grill finalizado) y Spec `aprobada` (el run la aceptó), sin barra de Gantt porque no hay evento. No cambia el alcance.
 
+- 2026-10-27 [DEVIATION] CA-17: el paréntesis dice «`brik-117` detenido», pero el filtro jq canónico de sdd-land da `verde` para ese rollup (un `CANCELLED` reemplazado por un `SUCCESS` posterior; `jq` sobre `brik-117.json` → `{"estado":"verde","detenidos":[],"supersedidos":1}`, igual que la tabla `JQ_CASES` de `sdd-land-gate.test.ts`). Manda la cláusula principal del CA («dan el mismo `estado` que ese gate»): el test espera `verde`. No cambia el alcance.
+- 2026-10-27 [DEVIATION] CA-23: `sin-login` se detecta por la salida de error de `gh` (`gh auth login`, `Bad credentials`, HTTP 401) y no con un `gh auth status` aparte, para sostener la consulta única por repo y por poll de CA-24. Un repo cuyo remote no resuelve en GitHub (`Could not resolve to a Repository`) cuenta como `sin-remote`. `--no-github` reporta `reason: "desactivado"`, que no es una falla. No cambia el alcance.
+- 2026-10-27 [DEVIATION] CA-20: un nodo Publicado `sin dato local` no adelanta la etapa del trabajo (no prueba que se haya publicado); `taggeado` sí. Un PR mergeado o cerrado sin merge muestra `mergeado` o `cerrado` como sub-estado de su nodo PR. Las respuestas grabadas de `testdata/gh/` son sintéticas con la forma real de `gh api graphql` (el repo es público y no se copia contenido de repos privados); los 7 rollups del gate sí son copia literal. No cambia el alcance.
+
 ## Resultado de ejecucion (2026-10-27 · HEAD por capa)
-Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba`.
+Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba` · capa 3/5 `6282d9a`.
 
 | CA | Capa | Estado | Evidencia |
 |---|---|---|---|
@@ -239,3 +243,19 @@ Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd
 | POL-no-any-ts | 2/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
 | POL-gofmt | 2/5 | cumplida | `gofmt -l .` vacío |
 | POL-no-panic | 2/5 | cumplida | `git grep -n 'panic(' …` vacío |
+| CA-15 | 3/5 | verificado | `go test -count=1 ./internal/github`: `TestReadOnly_RechazaEscrituras` (mutation, `-X POST/DELETE/PATCH`, `pr merge/edit`, `issue comment/create/close`), `TestFetch_NoEjecutaEscrituras` y `TestFetch_RespuestaGrabada` verdes; el doble `internal/github/fake` falla el test ante una invocación no grabada o de escritura |
+| CA-16 | 3/5 | verificado | `go test -count=1 ./internal/model`: `TestBuild_IdeaDesdeIssuesAbiertos` (14 trabajos: ideas `waica#210` y `platform#120`; `#57` toma el título del issue sin duplicarse; issue cerrado sin artefactos no aparece) verde |
+| CA-17 | 3/5 | verificado | `go test -count=1 ./internal/github`: `TestChecks_RollupsDelGate` (los 7 rollups dan el `estado`, `detenidos` y `supersedidos` del filtro jq; ver desviación de `brik-117`) y `TestSubEstado_GateDeSddLand`; `go test ./internal/model` `TestBuild_SubEstadosDePR` verdes |
+| CA-18 | 3/5 | verificado | `go test -count=1 ./internal/model`: `TestBuild_MergeadoDesdeGitHub` (PR 105 sin `land.merged` → Mergeado con ts = `mergedAt`; `#54` con evento conserva su ts y `mergedAt` en refs) verde |
+| CA-19 | 3/5 | verificado | `go test -count=1 ./internal/model`: `TestBuild_VinculacionPorBody` (`Closes #57` suma el PR 130; `Refs #120` y `Refs #210` quedan fuera por no tener spec) verde |
+| CA-20 | 3/5 | verificado | `go test -count=1 ./internal/scan`: `TestTagsContaining_RepoTemporal` (repo temporal con `api/v1.0.57` y `web/v2.1.0`, SHA ausente = sin dato local) y `go test ./internal/model` `TestBuild_Taggeado` (taggeado con todos los tags, `sin dato local`, nunca `en prod`) verdes |
+| CA-21 | 3/5 | verificado | `go test -count=1 ./internal/github`: `TestPoller_IntervaloYUnaConsultaPorRepo` (reloj falso, intervalo 2m) y `TestPoller_RefreshConcurrenteSeFusiona`; `go test ./internal/api` `TestRefresh_ConsultaYResponde202` verdes; app levantada: `POST /api/refresh` → 202 `{"fetchedAt":null}` con `--no-github` |
+| CA-22 | 3/5 | verificado | `go test -count=1 ./internal/github` `TestCache_RutaYRoundTrip` y `go test ./internal/api` `TestCache_ArrancaSinGhYSirveLoCacheado` (sirve la caché con su `fetchedAt` mientras corre la primera consulta y después sin `gh`) verdes |
+| CA-23 | 3/5 | verificado | `go test -count=1 ./internal/github` `TestReason_Degradado` y `TestFetch_ErrorDeGhSeClasifica`; `go test ./internal/api` `TestDegradado_UnRepoFallaYLosDemasNo` y `TestDegradado_SinGhSirveLoLocal` verdes; app levantada con `--no-github`: PR 98 `sin dato` y `stale: true`, 12 trabajos locales |
+| CA-24 | 3/5 | verificado | `go test -count=1 ./internal/github`: `TestPoller_IntervaloYUnaConsultaPorRepo` (una invocación `gh api graphql` por repo y por poll) y `TestPoller_FallaDeUnRepoNoAfectaAOtros` verdes |
+| CA-25 | 3/5 | verificado | `go test -count=1 ./internal/api`: `TestStream_EmiteSnapshotAlCambiar` y `TestStream_PingPeriodico` (rojo comprobado por mutación: sin el ping, el test falla por timeout) verdes; app levantada: `curl -N /api/stream` recibió `event: snapshot` con `scannedAt` y `fetchedAt` tras agregar una línea al log |
+| POL-commits | 3/5 | cumplida | gate de `git log` vacío |
+| POL-max-lineas-archivo | 3/5 | cumplida | gate de `wc -l` vacío |
+| POL-no-any-ts | 3/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
+| POL-gofmt | 3/5 | cumplida | `gofmt -l .` vacío |
+| POL-no-panic | 3/5 | cumplida | `git grep -n 'panic(' …` vacío |
