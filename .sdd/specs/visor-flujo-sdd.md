@@ -204,3 +204,18 @@ Protocolo de prueba humana (CA-27, CA-28, CA-30, CA-31, CA-32, CA-33, CA-34):
 - Run con stack de 5 PRs: exige la extensión `gh stack` (instalada localmente, v0.2.1); su conducta en vivo está documentada en el contrato de `skills` (Gaps).
 - `web/embed.go` conserva la excepción de `no-panic`; `Dist()` con error es un cambio aparte.
 - Vectores y fixtures copiados desde `skills`: si los docs normativos cambian, los tests de este repo no lo detectan solos; un test lee el bloque de vectores copiado, no el original.
+
+## Resultado de ejecucion (2026-10-27 · HEAD por capa)
+Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd`.
+
+| CA | Capa | Estado | Evidencia |
+|---|---|---|---|
+| CA-1 | 1/5 | verificado | `go test -count=1 ./internal/events`: `TestParseLine_Vectores` (12 vectores leídos del bloque copiado, 11 eventos del catálogo, round trip byte a byte) verde |
+| CA-2 | 1/5 | verificado | `go test -count=1 ./internal/events`: `TestParseLine_Invalidas` (28 casos, los 16 códigos) y `TestReadLog_SaltaInvalidasYSegmentoFinal` verdes |
+| CA-3 | 1/5 | verificado | `go test -count=1 ./internal/tracking`: `TestParse_Fixtures` (21/21 contra `testdata/tracking/expected.json`), `TestParse_VectoresRoundTrip`, `TestParse_Preambulo` (BOM, fences, conflictos), `TestParse_AliasesLegacy`, `TestSerialize_SoloCanonica` verdes |
+| CA-4 | 1/5 | verificado | `go test -count=1 ./internal/tracking`: `TestRef_RoundTrip` y `TestDecodeRef_Invalidas` (10 formas inválidas) verdes |
+| POL-commits | 1/5 | cumplida | gate de `git log --format=%s origin/main..HEAD` vacío |
+| POL-max-lineas-archivo | 1/5 | cumplida | gate de `wc -l` vacío (máximo 257, `internal/tracking/legacy.go`) |
+| POL-no-any-ts | 1/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
+| POL-gofmt | 1/5 | cumplida | `gofmt -l .` vacío |
+| POL-no-panic | 1/5 | cumplida | `git grep -n 'panic(' …` vacío |
