@@ -1,6 +1,6 @@
 # Spec — Visor del flujo SDD
-<!-- Generada por /sdd-spec el 2026-10-27. Fuente: grill 2026-10-23-visor-flujo-sdd. Estado: approved -->
-<!-- SDD-Tracking: version=1; type=spec; state=approved; issue=none; grill=2026-10-23-visor-flujo-sdd; superseded-by=none -->
+<!-- Generada por /sdd-spec el 2026-10-27. Fuente: grill 2026-10-23-visor-flujo-sdd. Estado: implemented -->
+<!-- SDD-Tracking: version=1; type=spec; state=implemented; issue=none; grill=2026-10-23-visor-flujo-sdd; superseded-by=none -->
 
 ## Contexto
 El grill `.sdd/grills/2026-10-23-visor-flujo-sdd.md` (finalizado, 34 decisiones) define una herramienta local de solo lectura que muestra cómo cada *trabajo* avanza por Idea → Grill → Spec → Run → PR → Mergeado → Publicado en todos los repos de una carpeta. Hoy el repo es un esqueleto: `cmd/sdd/main.go:34-37` sirve `/api/health` y el fallback de SPA, `web/src/App.tsx` solo consulta `/api/health`, `web/src/index.css` es `@import "tailwindcss"` y los únicos tests son los dos de `cmd/sdd/main_test.go`. No existen `internal/`, `testdata/`, tokens en código ni runner de tests del front. La dirección visual ya está fijada en `web/DESIGN_SYSTEM.md` (`sobrio-indigo`), sin materializar.
@@ -218,8 +218,10 @@ Protocolo de prueba humana (CA-27, CA-28, CA-30, CA-31, CA-32, CA-33, CA-34):
 - 2026-10-27 [DEVIATION] CA-26: además de los tokens de la tabla, `index.css` define `--color-overlay` con el valor `rgb(0 0 0 / 0.5)` de la sección Dialog / Sheet del doc, y una capa `@theme inline` que mapea los nombres de shadcn (`background`, `popover`, `muted`…) a los tokens de la tabla, como pide «con sus tokens mapeados a los de arriba». No son colores nuevos. No cambia el alcance.
 - 2026-10-27 [DEVIATION] CA-31: el skeleton dura hasta el primer snapshot con `scanning:false`, como dice el CA. El escaneo progresivo existe en la API (`scanning:true` con los repos ya leídos), pero la UI no dibuja el parcial. En desktop el board se muestra con los dos filtros (CA-28); la Lista de trabajos es solo de celular. `npm test` no se sumó al workflow de CI: lo registra `/sdd-init --update`. No cambia el alcance.
 
+- 2026-10-27 [DEVIATION] CA-34: `ganttLayout(trabajo, ancho, hoy)` recibe `hoy` explícito para seguir siendo pura (las barras abiertas llegan hasta ese instante). CA-33: los links locales de grill y spec se listan como rutas copiables bajo el grafo, porque el navegador no abre `file://` desde una página http; los nodos con URL (issue, PRs) son links del SVG. No cambia el alcance.
+
 ## Resultado de ejecucion (2026-10-27 · HEAD por capa)
-Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba` · capa 3/5 `b50c1d9` · capa 4/5 `d9f9971`.
+Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba` · capa 3/5 `b50c1d9` · capa 4/5 `d9f9971` · capa 5/5 `2212c48`.
 
 | CA | Capa | Estado | Evidencia |
 |---|---|---|---|
@@ -275,3 +277,12 @@ Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd
 | POL-no-any-ts | 4/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
 | POL-gofmt | 4/5 | cumplida | `gofmt -l .` vacío |
 | POL-no-panic | 4/5 | cumplida | `git grep -n 'panic(' …` vacío |
+| CA-33 | 5/5 | verificado (ruteo) · pendiente humano (aspecto) | `cd web && npm test`: `Detalle.test.tsx` (`/trabajos/<id>` abre el Dialog sobre el board con título, chips de repo e issue con link, grafo de 9 nodos con la rama `run-1` y un solo nodo activo, links de PRs y rutas locales; Esc vuelve a `/` conservando `?repo&filtro`; id inexistente → «Trabajo no encontrado»; en celular abre como Sheet; tocar una fila de la lista abre el detalle) verde; app levantada: `GET /trabajos/chichex%2Fwaica%2Fissue%2F203` → 200 (SPA) y `/api/trabajos/chichex%2Fwaica%2Fissue%2F203` → gantt 4, PRs 5. Aspecto: protocolo humano, pasos 3, 4 y 6 |
+| CA-34 | 5/5 | verificado (layout) · pendiente humano (aspecto) | `cd web && npm test`: `src/components/detalle/gantt.test.ts` (`ganttLayout`: una fila por barra con las ramas cerradas etiquetadas, posiciones por fecha, barra abierta hasta hoy, sin historia sin barras) y `Detalle.test.tsx` (4 barras y la línea de hoy en el SVG) verdes. Aspecto: protocolo humano, paso 4 |
+| POL-commits | 5/5 | cumplida | gate de `git log` vacío |
+| POL-max-lineas-archivo | 5/5 | cumplida | gate de `wc -l` vacío |
+| POL-no-any-ts | 5/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
+| POL-gofmt | 5/5 | cumplida | `gofmt -l .` vacío |
+| POL-no-panic | 5/5 | cumplida | `git grep -n 'panic(' …` vacío |
+| POL-estilo-go | — | guía aplicada | sin gate: la juzga el reviewer |
+| POL-coding-policies | — | guía aplicada | sin gate: la juzga el reviewer |
