@@ -1,1 +1,220 @@
+/*
+ * Tokens del design system (web/DESIGN_SYSTEM.md, dirección sobrio-indigo).
+ * Es el único lugar con colores literales: los componentes usan solo tokens.
+ * Claro por default; oscuro con prefers-color-scheme salvo data-theme="light",
+ * y siempre con data-theme="dark" (toggle manual).
+ */
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+@theme {
+  --color-*: initial;
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #FAFAFA;
+  --color-bg-muted: #F4F4F5;
+  --color-fg: #18181B;
+  --color-fg-secondary: #52525B;
+  --color-fg-muted: #71717A;
+  --color-fg-disabled: #A1A1AA;
+  --color-border: #E4E4E7;
+  --color-border-strong: #D4D4D8;
+  --color-primary: #4F46E5;
+  --color-primary-fg: #FFFFFF;
+  --color-primary-text: #4338CA;
+  --color-primary-subtle: #EEF2FF;
+  --color-ring: #6366F1;
+  --color-success-text: #15803D;
+  --color-success-subtle: #F0FDF4;
+  --color-warning-text: #B45309;
+  --color-warning-subtle: #FFFBEB;
+  --color-error-text: #B91C1C;
+  --color-error-subtle: #FEF2F2;
+  --color-info-text: #0369A1;
+  --color-info-subtle: #F0F9FF;
+  --color-stage-idea: #D4D4D8;
+  --color-stage-grill: #C4B5FD;
+  --color-stage-spec: #A5B4FC;
+  --color-stage-run: #7DD3FC;
+  --color-stage-pr: #FCD34D;
+  --color-stage-merged: #86EFAC;
+  --color-stage-published: #6EE7B7;
+  /* Overlay de Dialog, Sheet y Sidebar (sección Dialog / Sheet del doc). */
+  --color-overlay: rgb(0 0 0 / 0.5);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 13px;
+  --text-sm--line-height: 18px;
+  --text-base: 14px;
+  --text-base--line-height: 20px;
+  --text-lg: 16px;
+  --text-lg--line-height: 24px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.12);
+}
+
+/* Alias de shadcn/ui mapeados a los tokens de arriba (no son colores nuevos). */
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-fg);
+  --color-card: var(--color-bg);
+  --color-card-foreground: var(--color-fg);
+  --color-popover: var(--color-bg);
+  --color-popover-foreground: var(--color-fg);
+  --color-primary-foreground: var(--color-primary-fg);
+  --color-secondary: var(--color-bg-muted);
+  --color-secondary-foreground: var(--color-fg);
+  --color-muted: var(--color-bg-muted);
+  --color-muted-foreground: var(--color-fg-muted);
+  --color-accent: var(--color-bg-muted);
+  --color-accent-foreground: var(--color-fg);
+  --color-destructive: var(--color-error-text);
+  --color-input: var(--color-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #09090B;
+    --color-bg-subtle: #18181B;
+    --color-bg-muted: #27272A;
+    --color-fg: #FAFAFA;
+    --color-fg-secondary: #A1A1AA;
+    --color-fg-muted: #71717A;
+    --color-fg-disabled: #52525B;
+    --color-border: #27272A;
+    --color-border-strong: #3F3F46;
+    --color-primary: #4F46E5;
+    --color-primary-fg: #FFFFFF;
+    --color-primary-text: #818CF8;
+    --color-primary-subtle: #1E1B4B;
+    --color-ring: #818CF8;
+    --color-success-text: #4ADE80;
+    --color-success-subtle: #052E16;
+    --color-warning-text: #FBBF24;
+    --color-warning-subtle: #451A03;
+    --color-error-text: #F87171;
+    --color-error-subtle: #450A0A;
+    --color-info-text: #38BDF8;
+    --color-info-subtle: #082F49;
+    --color-stage-idea: #3F3F46;
+    --color-stage-grill: #6D28D9;
+    --color-stage-spec: #4338CA;
+    --color-stage-run: #0369A1;
+    --color-stage-pr: #B45309;
+    --color-stage-merged: #15803D;
+    --color-stage-published: #047857;
+    --shadow-sm: none;
+    --shadow-md: 0 4px 12px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #09090B;
+  --color-bg-subtle: #18181B;
+  --color-bg-muted: #27272A;
+  --color-fg: #FAFAFA;
+  --color-fg-secondary: #A1A1AA;
+  --color-fg-muted: #71717A;
+  --color-fg-disabled: #52525B;
+  --color-border: #27272A;
+  --color-border-strong: #3F3F46;
+  --color-primary: #4F46E5;
+  --color-primary-fg: #FFFFFF;
+  --color-primary-text: #818CF8;
+  --color-primary-subtle: #1E1B4B;
+  --color-ring: #818CF8;
+  --color-success-text: #4ADE80;
+  --color-success-subtle: #052E16;
+  --color-warning-text: #FBBF24;
+  --color-warning-subtle: #451A03;
+  --color-error-text: #F87171;
+  --color-error-subtle: #450A0A;
+  --color-info-text: #38BDF8;
+  --color-info-subtle: #082F49;
+  --color-stage-idea: #3F3F46;
+  --color-stage-grill: #6D28D9;
+  --color-stage-spec: #4338CA;
+  --color-stage-run: #0369A1;
+  --color-stage-pr: #B45309;
+  --color-stage-merged: #15803D;
+  --color-stage-published: #047857;
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.5);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* En touch los inputs no bajan de 16 px: Safari no hace zoom al enfocarlos. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
