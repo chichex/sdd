@@ -1,10 +1,7 @@
 package api
 
 import (
-	"context"
-	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"os/exec"
@@ -17,108 +14,6 @@ import (
 	"github.com/chichex/sdd/internal/scan"
 	"github.com/chichex/sdd/internal/workspace"
 )
-
-func fixtureWorkspace(t *testing.T) string {
-	t.Helper()
-	if _, err := exec.LookPath("git"); err != nil {
-		t.Skip("git no está en PATH: los tests de la API necesitan repos temporales")
-	}
-	dir := filepath.Join(t.TempDir(), "ws")
-	if out, err := exec.Command("bash", "../../testdata/mkworkspace.sh", dir).CombinedOutput(); err != nil {
-		t.Fatalf("mkworkspace: %v\n%s", err, out)
-	}
-	return dir
-}
-
-// start levanta el servicio real sobre root y un httptest.Server con la API.
-func start(t *testing.T, cfg workspace.Config) (*workspace.Service, *httptest.Server) {
-	t.Helper()
-	svc := workspace.New(cfg)
-	ctx, cancel := context.WithCancel(context.Background())
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		_ = svc.Run(ctx) // termina al cancelar el contexto
-	}()
-	mux := http.NewServeMux()
-	New(svc, "test").Register(mux)
-	srv := httptest.NewServer(mux)
-	t.Cleanup(func() {
-		srv.Close()
-		cancel()
-		wg.Wait()
-	})
-	return svc, srv
-}
-
-type workspaceResp struct {
-	Root      string  `json:"root"`
-	ScannedAt *string `json:"scannedAt"`
-	Scanning  bool    `json:"scanning"`
-	GitHub    struct {
-		OK        bool    `json:"ok"`
-		Reason    string  `json:"reason"`
-		FetchedAt *string `json:"fetchedAt"`
-	} `json:"github"`
-	Repos []struct {
-		ID              string   `json:"id"`
-		Nombre          string   `json:"nombre"`
-		Rutas           []string `json:"rutas"`
-		SinGit          bool     `json:"sinGit"`
-		Remote          string   `json:"remote"`
-		LineasInvalidas int      `json:"lineasInvalidas"`
-		Errores         []string `json:"errores"`
-	} `json:"repos"`
-	Trabajos []struct {
-		ID              string `json:"id"`
-		Repo            string `json:"repo"`
-		Titulo          string `json:"titulo"`
-		Etapa           string `json:"etapa"`
-		SubEstado       string `json:"subEstado"`
-		UltimaActividad string `json:"ultimaActividad"`
-		Terminado       bool   `json:"terminado"`
-		Ramas           []struct {
-			ID    string `json:"id"`
-			Nodos []struct {
-				Etapa     string `json:"etapa"`
-				SubEstado string `json:"subEstado"`
-				TS        string `json:"ts"`
-			} `json:"nodos"`
-		} `json:"ramas"`
-	} `json:"trabajos"`
-}
-
-func getJSON(t *testing.T, u string, into any) int {
-	t.Helper()
-	res, err := http.Get(u)
-	if err != nil {
-		t.Fatalf("GET %s: %v", u, err)
-	}
-	defer res.Body.Close()
-	if into != nil {
-		if err := json.NewDecoder(res.Body).Decode(into); err != nil {
-			t.Fatalf("GET %s: json: %v", u, err)
-		}
-	}
-	return res.StatusCode
-}
-
-func waitScanned(t *testing.T, base string) workspaceResp {
-	t.Helper()
-	deadline := time.Now().Add(10 * time.Second)
-	for {
-		var ws workspaceResp
-		getJSON(t, base+"/api/workspace?filtro=todos", &ws)
-		if !ws.Scanning {
-			return ws
-		}
-		if time.Now().After(deadline) {
-			t.Fatalf("el escaneo inicial no terminó en 10 s")
-		}
-		time.Sleep(20 * time.Millisecond)
-	}
-}
 
 func TestWorkspace_FixtureCompleto(t *testing.T) {
 	root := fixtureWorkspace(t)
@@ -211,55 +106,6 @@ func TestWorkspace_ParcialMientrasEscanea(t *testing.T) {
 	once.Do(func() { close(release) })
 	if ws := waitScanned(t, srv.URL); len(ws.Trabajos) != 12 {
 		t.Fatalf("al terminar = %d trabajos, want 12", len(ws.Trabajos))
-	}
-}
-
-func TestTrabajo_DetalleYNoEncontrado(t *testing.T) {
-	root := fixtureWorkspace(t)
-	_, srv := start(t, workspace.Config{Root: root, WatchInterval: time.Hour})
-	waitScanned(t, srv.URL)
-	var det struct {
-		ID    string `json:"id"`
-		Gantt []struct {
-			Rama   string  `json:"rama"`
-			Etapa  string  `json:"etapa"`
-			Inicio string  `json:"inicio"`
-			Fin    *string `json:"fin"`
-			Estado string  `json:"estado"`
-		} `json:"gantt"`
-		Links struct {
-			Issue *string `json:"issue"`
-			PRs   []struct {
-				Numero int    `json:"numero"`
-				URL    string `json:"url"`
-			} `json:"prs"`
-			Grills []string `json:"grills"`
-			Specs  []string `json:"specs"`
-		} `json:"links"`
-	}
-	if code := getJSON(t, srv.URL+"/api/trabajos/"+url.PathEscape("chichex/waica/issue/203"), &det); code != http.StatusOK {
-		t.Fatalf("detalle = %d, want 200", code)
-	}
-	if det.ID != "chichex/waica/issue/203" || len(det.Gantt) != 4 || det.Gantt[3].Rama != "run-1" || det.Gantt[2].Fin != nil {
-		t.Fatalf("detalle = %+v, want 4 barras con la rama run-1 y Mergeado abierto", det)
-	}
-	if len(det.Links.PRs) != 5 || det.Links.PRs[0].URL != "https://github.com/chichex/waica/pull/228" || len(det.Links.Specs) != 1 {
-		t.Fatalf("links = %+v", det.Links)
-	}
-	if det.Links.Specs[0] != filepath.Join(root, "waica", ".sdd", "specs", "issue-203.md") {
-		t.Fatalf("spec local = %q, want la del árbol", det.Links.Specs[0])
-	}
-	var grillID struct {
-		ID string `json:"id"`
-	}
-	if code := getJSON(t, srv.URL+"/api/trabajos/chichex/waica/issue/205", &grillID); code != http.StatusOK || grillID.ID != "chichex/waica/issue/205" {
-		t.Fatalf("detalle con barras sin escapar = %d %q", code, grillID.ID)
-	}
-	var notFound struct {
-		Error string `json:"error"`
-	}
-	if code := getJSON(t, srv.URL+"/api/trabajos/no-existe", &notFound); code != http.StatusNotFound || notFound.Error == "" {
-		t.Fatalf("id desconocido = %d %q, want 404 con error", code, notFound.Error)
 	}
 }
 
