@@ -1,0 +1,26 @@
+{
+  "_fuente": "Clasificación esperada de los 21 fixtures copiados de skills/pi-extensions/sdd-artifacts/fixtures/. Valores tomados de las tablas de sdd-artifacts.test.ts («runs the Markdown fixture conformance matrix» y «recognizes Spanish and English legacy fixtures») y, para upsert-lf.md, de la regla de reconocimiento de contratos de docs/sdd-tracking-v1.md.",
+  "fixtures": {
+    "canonical-spec.md": {"kind": "canonical", "type": "spec", "state": "approved", "provenance": "canonical", "issue": "owner/repo#9", "grill": "session 9"},
+    "canonical-grill.md": {"kind": "canonical", "type": "grill", "state": "finalized", "provenance": "canonical", "issue": "#9", "grill": "session-9", "project": "/workspace/project"},
+    "canonical-project.md": {"kind": "canonical", "type": "project", "state": "unknown", "provenance": "absent", "generatedAt": "2026-08-08"},
+    "legacy-unknown.md": {"kind": "legacy", "type": "spec", "state": "unknown", "provenance": "legacy-explicit", "raw": "waiting for legal review"},
+    "legacy-inferred.md": {"kind": "legacy", "type": "spec", "state": "implemented", "provenance": "legacy-inferred"},
+    "harness-pi.md": {"kind": "legacy", "type": "spec", "state": "approved", "provenance": "legacy-explicit", "raw": "aprobada", "issue": "#9"},
+    "harness-claude.md": {"kind": "legacy", "type": "spec", "state": "implemented", "provenance": "legacy-explicit", "raw": "implementada"},
+    "harness-codex.md": {"kind": "legacy", "type": "spec", "state": "draft", "provenance": "legacy-explicit", "raw": "borrador", "issue": "#9"},
+    "harness-opencode.md": {"kind": "legacy", "type": "spec", "state": "superseded", "provenance": "legacy-explicit", "raw": "superseded by specs/next.md", "issue": "#9", "supersededBy": "specs/next.md"},
+    "invalid-canonical.md": {"kind": "invalid", "state": "unknown", "provenance": "absent", "diagnostic": "missing-key"},
+    "unsupported-version.md": {"kind": "invalid", "state": "unknown", "provenance": "absent", "diagnostic": "unsupported-version"},
+    "invalid-encoding.md": {"kind": "invalid", "state": "unknown", "provenance": "absent", "diagnostic": "invalid-encoding"},
+    "duplicate-identical.md": {"kind": "canonical", "type": "spec", "state": "draft", "provenance": "canonical", "diagnostic": "duplicate-canonical", "issue": "#9"},
+    "duplicate-divergent.md": {"kind": "conflict", "state": "unknown", "provenance": "absent", "diagnostic": "conflicting-canonical"},
+    "spec-es.md": {"kind": "legacy", "type": "spec", "state": "approved", "provenance": "legacy-explicit", "raw": "pendiente   de ejecución", "issue": "#9", "grill": "sesión legacy/á"},
+    "spec-en.md": {"kind": "legacy", "type": "spec", "state": "implemented", "provenance": "legacy-explicit", "raw": "implemented", "issue": "owner/repo#9"},
+    "grill-es.md": {"kind": "legacy", "type": "grill", "state": "paused", "provenance": "legacy-explicit", "raw": "paused", "issue": "#9", "grill": "sesión-9", "project": "/workspace/proyecto"},
+    "grill-en.md": {"kind": "legacy", "type": "grill", "state": "finalized", "provenance": "legacy-explicit", "raw": "finalized", "issue": "owner/repo#9", "grill": "grill-9", "project": "/workspace/project"},
+    "project-es.md": {"kind": "legacy", "type": "project", "state": "unknown", "provenance": "absent", "generatedAt": "2026-07-18"},
+    "project-en.md": {"kind": "legacy", "type": "project", "state": "unknown", "provenance": "absent", "generatedAt": "2026-07-19"},
+    "upsert-lf.md": {"kind": "legacy", "type": "project", "state": "unknown", "provenance": "absent", "generatedAt": "2026-08-08"}
+  }
+}
