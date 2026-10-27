@@ -1,0 +1,79 @@
+{
+ "data": {
+  "repository": {
+   "issues": {
+    "totalCount": 0,
+    "nodes": []
+   },
+   "openPRs": {
+    "nodes": []
+   },
+   "recentPRs": {
+    "nodes": [
+     {
+      "number": 101,
+      "title": "PR 101 sintético",
+      "url": "https://github.com/chichex/skills/pull/101",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-16T00:32:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee000065"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  }
+ }
+}

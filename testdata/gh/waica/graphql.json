@@ -1,0 +1,706 @@
+{
+ "data": {
+  "repository": {
+   "issues": {
+    "totalCount": 1,
+    "nodes": [
+     {
+      "number": 210,
+      "title": "Idea sintética sin artefactos",
+      "url": "https://github.com/chichex/waica/issues/210",
+      "updatedAt": "2026-10-26T09:00:00Z"
+     }
+    ]
+   },
+   "openPRs": {
+    "nodes": []
+   },
+   "recentPRs": {
+    "nodes": [
+     {
+      "number": 228,
+      "title": "PR 228 sintético",
+      "url": "https://github.com/chichex/waica/pull/228",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-23T14:40:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #203",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000e4"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 229,
+      "title": "PR 229 sintético",
+      "url": "https://github.com/chichex/waica/pull/229",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-23T14:41:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #203",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000e5"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 230,
+      "title": "PR 230 sintético",
+      "url": "https://github.com/chichex/waica/pull/230",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-23T14:42:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #203",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000e6"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 231,
+      "title": "PR 231 sintético",
+      "url": "https://github.com/chichex/waica/pull/231",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-23T14:43:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #203",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000e7"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 232,
+      "title": "PR 232 sintético",
+      "url": "https://github.com/chichex/waica/pull/232",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-23T14:44:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Closes #203",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000e8"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 239,
+      "title": "PR 239 sintético",
+      "url": "https://github.com/chichex/waica/pull/239",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:50:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #205",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000ef"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 240,
+      "title": "PR 240 sintético",
+      "url": "https://github.com/chichex/waica/pull/240",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:51:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #205",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000f0"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 241,
+      "title": "PR 241 sintético",
+      "url": "https://github.com/chichex/waica/pull/241",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:52:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #205",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000f1"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 242,
+      "title": "PR 242 sintético",
+      "url": "https://github.com/chichex/waica/pull/242",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:53:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #205",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000f2"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 243,
+      "title": "PR 243 sintético",
+      "url": "https://github.com/chichex/waica/pull/243",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:54:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #205",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000f3"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 249,
+      "title": "PR 249 sintético",
+      "url": "https://github.com/chichex/waica/pull/249",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-27T05:40:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #210",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee0000f9"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,203 @@
+{
+ "data": {
+  "repository": {
+   "issues": {
+    "totalCount": 0,
+    "nodes": []
+   },
+   "openPRs": {
+    "nodes": []
+   },
+   "recentPRs": {
+    "nodes": [
+     {
+      "number": 363,
+      "title": "PR 363 sintético",
+      "url": "https://github.com/pramaestudio/dale-que-sale/pull/363",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-17T02:35:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee00016b"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 364,
+      "title": "PR 364 sintético",
+      "url": "https://github.com/pramaestudio/dale-que-sale/pull/364",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-20T14:43:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee00016c"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 365,
+      "title": "PR 365 sintético",
+      "url": "https://github.com/pramaestudio/dale-que-sale/pull/365",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-23T14:40:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee00016d"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  }
+ }
+}
