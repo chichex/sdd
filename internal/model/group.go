@@ -2,9 +2,11 @@ package model
 
 import (
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/chichex/sdd/internal/events"
+	"github.com/chichex/sdd/internal/github"
 	"github.com/chichex/sdd/internal/scan"
 	"github.com/chichex/sdd/internal/tracking"
 )
@@ -96,6 +98,22 @@ func (g *grouper) add(a Ancla, it item) {
 		g.order = append(g.order, key)
 	}
 	grp.items = append(grp.items, it)
+}
+
+// ideas devuelve un grupo vacío por cada issue abierto que todavía no ancla
+// ningún trabajo: entra como Idea.
+func (g *grouper) ideas(snap *github.Snapshot) []*group {
+	if snap == nil {
+		return nil
+	}
+	var out []*group
+	for _, is := range snap.Issues {
+		a := Ancla{Tipo: "issue", Ref: "#" + strconv.Itoa(is.Number)}
+		if _, ok := g.groups["issue:"+a.Ref]; !ok {
+			out = append(out, &group{anchor: a})
+		}
+	}
+	return out
 }
 
 func (g *grouper) find(id string) string {

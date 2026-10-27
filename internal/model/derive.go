@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/chichex/sdd/internal/events"
+	"github.com/chichex/sdd/internal/github"
 	"github.com/chichex/sdd/internal/scan"
 	"github.com/chichex/sdd/internal/tracking"
 )
@@ -27,11 +28,15 @@ var eventLabel = map[string]string{
 type deriver struct {
 	repo      scan.Repo
 	grp       *group
+	gh        *github.Snapshot
+	stale     bool
+	tags      Tags
 	principal []Nodo
 	closed    []Rama
 	prList    []int
 	prTS      string
 	merged    map[int]bool
+	tagged    bool
 }
 
 func (d *deriver) issueRef() *string {

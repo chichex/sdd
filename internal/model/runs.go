@@ -78,29 +78,49 @@ func (d *deriver) prURL(n int) *string {
 	return nil
 }
 
-// prNodes arma un nodo por PR del último run.pr-opened, en orden de capa, y un
-// nodo Mergeado por PR con land.merged.
-func (d *deriver) prNodes() {
+// prNodes arma un nodo por PR del último run.pr-opened (más los vinculados
+// por body), en orden de capa, y un nodo Mergeado por PR con land.merged o,
+// sin evento, con mergedAt de GitHub (cubre la merge queue).
+func (d *deriver) prNodes(linked []int) {
+	opened := len(d.prList)
+	d.prList = append(d.prList, linked...)
 	total := len(d.prList)
 	for i, n := range d.prList {
-		d.principal = append(d.principal, Nodo{Etapa: PR, SubEstado: "sin dato", TS: d.prTS, inicio: d.prTS,
-			Refs: Refs{Issue: d.issueRef(), PR: ptr(n)}, URL: d.prURL(n), Capa: fmt.Sprintf("%d/%d", i+1, total)})
+		ts := d.prTS
+		if i >= opened {
+			pr, _ := d.gh.PR(n)
+			ts = pr.UpdatedAt
+		}
+		node := Nodo{Etapa: PR, SubEstado: d.prState(n), TS: ts, Refs: Refs{Issue: d.issueRef(), PR: ptr(n)},
+			URL: d.prURL(n), Capa: fmt.Sprintf("%d/%d", i+1, total), Stale: d.stale}
+		if i < opened {
+			node.inicio = d.prTS
+		}
+		d.principal = append(d.principal, node)
 	}
 	d.merged = map[int]bool{}
-	var extra []Nodo
-	var inList []Nodo
-	for _, ev := range d.evs("land.merged") {
-		n := ev.PR[0]
-		if d.merged[n] {
-			continue
+	var extra, inList []Nodo
+	add := func(n int, ts string) {
+		node := Nodo{Etapa: Mergeado, SubEstado: "mergeado", TS: ts, inicio: ts, Refs: Refs{Issue: d.issueRef(), PR: ptr(n)}, URL: d.prURL(n)}
+		if pr, ok := d.gh.PR(n); ok && pr.MergedAt != "" {
+			node.Refs.MergedAt = ptr(pr.MergedAt)
 		}
 		d.merged[n] = true
-		node := Nodo{Etapa: Mergeado, SubEstado: "mergeado", TS: ev.TS, inicio: ev.TS, Refs: Refs{Issue: d.issueRef(), PR: ptr(n)}, URL: d.prURL(n)}
 		if i := indexOf(d.prList, n); i >= 0 {
 			node.Capa = fmt.Sprintf("%d/%d", i+1, total)
 			inList = append(inList, node)
 		} else {
 			extra = append(extra, node)
+		}
+	}
+	for _, ev := range d.evs("land.merged") {
+		if !d.merged[ev.PR[0]] {
+			add(ev.PR[0], ev.TS)
+		}
+	}
+	for _, n := range d.prList {
+		if pr, ok := d.gh.PR(n); ok && pr.MergedAt != "" && !d.merged[n] {
+			add(n, pr.MergedAt)
 		}
 	}
 	slices.SortFunc(inList, func(a, b Nodo) int { return indexOf(d.prList, *a.Refs.PR) - indexOf(d.prList, *b.Refs.PR) })

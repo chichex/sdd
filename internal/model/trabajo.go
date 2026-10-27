@@ -3,7 +3,10 @@
 // sub-estados, y calcula el Gantt y los links del detalle. Es puro: no hace I/O.
 package model
 
-import "github.com/chichex/sdd/internal/scan"
+import (
+	"github.com/chichex/sdd/internal/github"
+	"github.com/chichex/sdd/internal/scan"
+)
 
 // Etapa es una de las siete etapas del flujo SDD.
 type Etapa string
@@ -36,13 +39,15 @@ type Refs struct {
 
 // Nodo es un paso de una rama en una etapa.
 type Nodo struct {
-	Etapa     Etapa   `json:"etapa"`
-	SubEstado string  `json:"subEstado"`
-	TS        string  `json:"ts"`
-	Refs      Refs    `json:"refs"`
-	URL       *string `json:"url"`
-	Ruta      string  `json:"ruta,omitempty"`
-	Capa      string  `json:"capa,omitempty"`
+	Etapa     Etapa    `json:"etapa"`
+	SubEstado string   `json:"subEstado"`
+	TS        string   `json:"ts"`
+	Refs      Refs     `json:"refs"`
+	URL       *string  `json:"url"`
+	Ruta      string   `json:"ruta,omitempty"`
+	Capa      string   `json:"capa,omitempty"`
+	Stale     bool     `json:"stale,omitempty"`
+	Tags      []string `json:"tags,omitempty"`
 	// inicio es el primer evento de la etapa en su rama; vacío si el nodo no
 	// sale de un evento (artefacto sin historia o etapa inferida por refs).
 	inicio string
@@ -98,7 +103,16 @@ type Links struct {
 
 // RepoInput es lo que Build recibe por repo.
 type RepoInput struct {
-	Data scan.Data
+	Data   scan.Data
+	GitHub *github.Snapshot
+	Stale  bool
+	Tags   Tags
+}
+
+// Tags dice qué tags contienen cada merge commit.
+type Tags struct {
+	BySHA   map[string][]string
+	Missing map[string]bool
 }
 
 func ptr[T any](v T) *T { return &v }

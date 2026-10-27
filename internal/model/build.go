@@ -20,8 +20,11 @@ func Build(inputs []RepoInput) []Trabajo {
 		if in.Data.Repo.SinGit {
 			continue
 		}
-		for _, grp := range newGrouper(in.Data.Repo.ID).run(in.Data) {
-			out = append(out, derive(in.Data.Repo, grp))
+		g := newGrouper(in.Data.Repo.ID)
+		groups := g.run(in.Data)
+		linked := g.linkedPRs(in.GitHub)
+		for _, grp := range append(groups, g.ideas(in.GitHub)...) {
+			out = append(out, derive(in, grp, linked["issue:"+grp.anchor.Ref]))
 		}
 	}
 	slices.SortStableFunc(out, func(a, b Trabajo) int {
@@ -33,12 +36,18 @@ func Build(inputs []RepoInput) []Trabajo {
 	return out
 }
 
-func derive(repo scan.Repo, grp *group) Trabajo {
-	d := &deriver{repo: repo, grp: grp}
+func derive(in RepoInput, grp *group, linked []int) Trabajo {
+	repo := in.Data.Repo
+	d := &deriver{repo: repo, grp: grp, gh: in.GitHub, stale: in.Stale, tags: in.Tags}
 	d.grillNodes()
 	d.specNodes()
 	d.runNodes()
-	d.prNodes()
+	if d.specRef() == nil || grp.anchor.Tipo != "issue" {
+		linked = nil // un PR vinculado por body solo entra a un trabajo con spec
+	}
+	d.prNodes(linked)
+	d.publishedNode()
+	d.ideaNode()
 	if d.principal == nil {
 		d.principal = []Nodo{}
 	}
@@ -49,14 +58,14 @@ func derive(repo scan.Repo, grp *group) Trabajo {
 		Ancla:  grp.anchor,
 		Ramas:  append([]Rama{{ID: "principal", Estado: "viva", Nodos: d.principal}}, d.closed...),
 	}
-	tr.SinHistoria = !slices.ContainsFunc(grp.items, func(it item) bool { return it.ev != nil })
+	tr.SinHistoria = len(grp.items) > 0 && !slices.ContainsFunc(grp.items, func(it item) bool { return it.ev != nil })
 	tr.Etapa, tr.SubEstado = d.current()
 	for _, r := range tr.Ramas {
 		for _, n := range r.Nodos {
 			tr.UltimaActividad = max(tr.UltimaActividad, n.TS)
 		}
 	}
-	tr.Terminado = d.mergedComplete() && grp.anchor.Tipo != "issue"
+	tr.Terminado = d.tagged || (d.mergedComplete() && (grp.anchor.Tipo != "issue" || d.issueClosed()))
 	tr.Gantt = d.gantt(tr.Ramas)
 	tr.Links = d.links()
 	return tr
@@ -76,8 +85,8 @@ func trabajoID(repoID string, a Ancla) string {
 func (d *deriver) current() (Etapa, string) {
 	etapa, sub := Idea, ""
 	for _, n := range d.principal {
-		if etapaRank[n.Etapa] < etapaRank[etapa] {
-			continue
+		if etapaRank[n.Etapa] < etapaRank[etapa] || (n.Etapa == Publicado && n.SubEstado != "taggeado") {
+			continue // sin dato local no dice que se haya publicado
 		}
 		laterPR := n.Etapa == PR && etapa == PR // el sub-estado de PR es el de la capa 1
 		if !laterPR {
@@ -95,8 +104,12 @@ var titlePrefix = regexp.MustCompile(`(?i)^(?:spec|grill)\s*[:—–-]\s*`)
 
 func cleanTitle(h1 string) string { return strings.TrimSpace(titlePrefix.ReplaceAllString(h1, "")) }
 
-// title: H1 de la spec más nueva, si no H1 del grill, si no la referencia del ancla.
+// title: título del issue, si no H1 de la spec más nueva, si no H1 del grill,
+// si no la referencia del ancla.
 func (d *deriver) title() string {
+	if is, ok := d.openIssue(); ok && is.Title != "" {
+		return is.Title
+	}
 	for _, kind := range []string{"spec", "grill"} {
 		if a, ok := newest(d.arts(kind)); ok {
 			if t := cleanTitle(a.art.Title); t != "" {
