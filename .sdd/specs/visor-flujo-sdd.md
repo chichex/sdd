@@ -205,8 +205,13 @@ Protocolo de prueba humana (CA-27, CA-28, CA-30, CA-31, CA-32, CA-33, CA-34):
 - `web/embed.go` conserva la excepción de `no-panic`; `Dist()` con error es un cambio aparte.
 - Vectores y fixtures copiados desde `skills`: si los docs normativos cambian, los tests de este repo no lo detectan solos; un test lee el bloque de vectores copiado, no el original.
 
+## Desviaciones
+- 2026-10-27 [DEVIATION] Inferencia 13: se suma `internal/workspace` para la orquestación en vivo (escaneo progresivo, polling de mtime, avisos a suscriptores); `internal/api` queda solo con HTTP. No cambia el alcance.
+- 2026-10-27 [DEVIATION] Plan de verificacion: `testdata/mkworkspace.sh` no copia `testdata/tracking/*.md` a los repos. Esos fixtures nombran `owner/repo#9` y sumarían trabajos ajenos, rompiendo el conteo de 12 de CA-9. Copia en cambio artefactos sintéticos de `testdata/workspace/` que se suman a trabajos existentes (spec de `#203` en el árbol y en el common-dir, grill de platform en el common-dir). Los 21 fixtures de tracking se verifican en CA-3. No cambia el alcance.
+- 2026-10-27 [DEVIATION] CA-8: cuando el log nombra un grill o una spec en eventos de run sin registrar su transición (por ejemplo `waica#203`, que no tiene `grill.*` ni `spec.*`), el trabajo muestra el nodo igual: Grill `finalizado` (una spec sale de un grill finalizado) y Spec `aprobada` (el run la aceptó), sin barra de Gantt porque no hay evento. No cambia el alcance.
+
 ## Resultado de ejecucion (2026-10-27 · HEAD por capa)
-Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd`.
+Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd` · capa 2/5 `26cbdba`.
 
 | CA | Capa | Estado | Evidencia |
 |---|---|---|---|
@@ -219,3 +224,18 @@ Cada capa corrió su verificación final sobre su propio HEAD: capa 1/5 `adf75fd
 | POL-no-any-ts | 1/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
 | POL-gofmt | 1/5 | cumplida | `gofmt -l .` vacío |
 | POL-no-panic | 1/5 | cumplida | `git grep -n 'panic(' …` vacío |
+| CA-5 | 2/5 | verificado | `go test -count=1 ./internal/scan`: `TestDiscover_Workspace` (workspace de `testdata/mkworkspace.sh`: 6 repos, worktree unido, sin profundidad 4 ni `node_modules`) y `TestRepoID_FormasDeRemote` verdes |
+| CA-6 | 2/5 | verificado | `go test -count=1 ./internal/scan`: `TestRead_FuentesLocales` (2 inválidas contadas, final sin LF descartado, gana el árbol, `rota.md` en errores) y `TestRead_DirectoriosAusentesSonVacios` verdes |
+| CA-7 | 2/5 | verificado | `go test -count=1 ./internal/model`: `TestBuild_TrabajosDeLogsReales` (3 + 2 + 6 + 1 = 12, PR 249 fuera, 5 PRs en `#203` y `#205`) verde |
+| CA-8 | 2/5 | verificado | `go test -count=1 ./internal/model`: `TestBuild_EtapasYRamas` (`#203` con rama `fallado (interrupted)` y Mergeado 5/5; `#54` Mergeado 3/4 con PR 98 `sin dato`) y `TestBuild_RunNuevoTrasFallo` verdes |
+| CA-9 | 2/5 | verificado | `go test -count=1 ./internal/api`: `TestWorkspace_FixtureCompleto`, `TestWorkspace_FiltroActivos`, `TestWorkspace_ParcialMientrasEscanea` verdes; app levantada (`./bin/sdd --dir "$(bash testdata/mkworkspace.sh)"`): `curl …/api/workspace \| jq '.trabajos\|length'` = 12, `scanning` false |
+| CA-10 | 2/5 | verificado | `go test -count=1 ./internal/api`: `TestTrabajo_DetalleYNoEncontrado` y `go test ./internal/model` `TestBuild_Gantt` verdes; app levantada: `/api/trabajos/chichex/waica/issue/203` → gantt 4 barras, 5 PRs; `/api/trabajos/no-existe` → 404 |
+| CA-11 | 2/5 | verificado | `go test -count=1 ./internal/model`: `TestBuild_SinHistoria` (un nodo, ts = mtime, sin barras) verde |
+| CA-12 | 2/5 | verificado | `go test -count=1 ./internal/api`: `TestWorkspace_RefreshLocalEnVivo` (intervalo default 2 s, nodo nuevo antes de 10 s, `scannedAt` avanza) verde; app levantada: línea agregada al log → `chichex/waica/issue/300` visible por `curl` |
+| CA-13 | 2/5 | verificado | `go test -count=1 ./internal/api`: `TestWorkspace_Vacio` (`repos: []`, `trabajos: []`, `scanning: false`, `/api/health` 200) verde |
+| CA-14 | 2/5 | verificado | `go test -count=1 ./cmd/sdd -run TestBanner`: `TestBanner_LAN` (URL con la primera IPv4 no loopback, QR ≤ 33 módulos, aviso) y `TestBanner_Local` verdes; a mano `./bin/sdd --host 0.0.0.0` imprimió `abrí http://192.168.1.92:4392` y un QR de 33 de ancho |
+| POL-commits | 2/5 | cumplida | gate de `git log` vacío |
+| POL-max-lineas-archivo | 2/5 | cumplida | gate de `wc -l` vacío tras partir `internal/api/api_test.go` (314 → 160 + 118 + 60, mismas 24 aserciones) |
+| POL-no-any-ts | 2/5 | cumplida | `npx oxlint -D typescript/no-explicit-any`: exit 0 |
+| POL-gofmt | 2/5 | cumplida | `gofmt -l .` vacío |
+| POL-no-panic | 2/5 | cumplida | `git grep -n 'panic(' …` vacío |
