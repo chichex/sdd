@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { mockApi, mockEventSource } from './test/api-mock'
-import { workspace } from './test/fixtures'
+import { detalleSinTraza, detalleStack, sinTraza, stack, workspace } from './test/fixtures'
 
 describe('estados del tablero', () => {
   it('muestra el skeleton hasta el primer snapshot con scanning false', async () => {
@@ -108,5 +108,50 @@ describe('refresh y accesibilidad', () => {
     render(<App />)
     expect(await screen.findByRole('radio', { name: 'Oscuro', checked: true })).toBeTruthy()
     expect(document.documentElement.dataset.theme).toBe('dark')
+  })
+})
+
+describe('marcas de traza y ancla en la lista y el detalle', () => {
+  const NOTA = 'Sin traza en events.jsonl: las etapas salen de los archivos y de GitHub, y las fechas son de modificación'
+  const celular = () =>
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
+
+  it('la fila de un trabajo sin traza lleva ícono de ancla y badge; la de uno con traza, solo el ícono', async () => {
+    celular()
+    mockApi(workspace({ trabajos: [stack, sinTraza] }))
+    mockEventSource()
+    render(<App />)
+    const lista = await screen.findByRole('list', { name: 'Trabajos' })
+    const filaSin = within(lista).getByRole('button', { name: /Grill viejo/ })
+    expect(within(filaSin).getByText('sin traza')).toBeTruthy()
+    expect(within(filaSin).getByLabelText('ancla: grill')).toBeTruthy()
+    const fila = within(lista).getByRole('button', { name: /Sombras suaves/ })
+    expect(within(fila).queryByText('sin traza')).toBeNull()
+    expect(within(fila).getByLabelText('ancla: issue')).toBeTruthy()
+  })
+
+  it('el detalle de un trabajo sin traza muestra el badge junto a los chips y la nota', async () => {
+    window.history.replaceState(null, '', `/trabajos/${encodeURIComponent(sinTraza.id)}`)
+    const api = mockApi(workspace({ trabajos: [stack, sinTraza] }))
+    api.detalles.set(sinTraza.id, detalleSinTraza)
+    mockEventSource()
+    render(<App />)
+    const dialog = await screen.findByRole('dialog', { name: 'Grill viejo' })
+    expect(within(dialog).getByText('sin traza')).toBeTruthy()
+    expect(within(dialog).getByText(NOTA)).toBeTruthy()
+    expect(within(dialog).getByLabelText('ancla: grill')).toBeTruthy()
+  })
+
+  it('el detalle de un trabajo con traza no muestra badge ni nota y su chip de ancla lleva el ícono', async () => {
+    window.history.replaceState(null, '', `/trabajos/${encodeURIComponent(detalleStack.id)}`)
+    const api = mockApi(workspace())
+    api.detalles.set(detalleStack.id, detalleStack)
+    mockEventSource()
+    render(<App />)
+    const dialog = await screen.findByRole('dialog', { name: 'Sombras suaves' })
+    expect(within(dialog).queryByText('sin traza')).toBeNull()
+    expect(within(dialog).queryByText(NOTA)).toBeNull()
+    expect(within(dialog).getByLabelText('ancla: issue')).toBeTruthy()
+    expect(within(dialog).getByRole('link', { name: '#57' })).toBeTruthy()
   })
 })

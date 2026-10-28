@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import App from './App'
 import { mockApi, mockEventSource } from './test/api-mock'
-import { workspace } from './test/fixtures'
+import { sinTraza, specSuelta, stack, workspace } from './test/fixtures'
 
 async function board() {
   mockApi(workspace())
@@ -46,5 +46,40 @@ describe('board en desktop', () => {
     fireEvent.keyDown(document.activeElement as Element, { key: 'Enter' })
     fireEvent.click(document.activeElement as Element)
     expect(window.location.pathname).toBe(`/trabajos/${encodeURIComponent('o/a/issue/58')}`)
+  })
+})
+
+describe('marcas de traza y ancla en el nodo', () => {
+  async function boardCon(...trabajos: Parameters<typeof workspace>[0][]) {
+    mockApi(workspace(Object.assign({}, ...trabajos)))
+    mockEventSource()
+    render(<App />)
+    return screen.findByRole('region', { name: 'Tablero' })
+  }
+
+  it('un trabajo sin traza lleva el badge «sin traza» en la fila del sub-estado, después de él', async () => {
+    const b = await boardCon({ trabajos: [stack, sinTraza] })
+    const nodo = within(within(b).getByRole('group', { name: 'Grill viejo' })).getByRole('button', { name: /Grill viejo · grill/ })
+    const badge = within(nodo).getByText('sin traza')
+    const fila = badge.parentElement as HTMLElement
+    expect(within(fila).getByText('pausado').compareDocumentPosition(badge)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+
+  it('un trabajo con traza no lleva el badge', async () => {
+    const b = await boardCon({ trabajos: [stack, sinTraza] })
+    expect(within(within(b).getByRole('group', { name: 'Sombras suaves' })).queryByText('sin traza')).toBeNull()
+  })
+
+  it('el chip de referencia del nodo lleva el ícono de ancla por tipo, con aria-label', async () => {
+    const b = await boardCon({ trabajos: [stack, sinTraza, specSuelta] })
+    expect(within(within(b).getByRole('group', { name: 'Sombras suaves' })).getAllByLabelText('ancla: issue').length).toBeGreaterThan(0)
+    expect(within(within(b).getByRole('group', { name: 'Grill viejo' })).getByLabelText('ancla: grill')).toBeTruthy()
+    expect(within(within(b).getByRole('group', { name: 'Spec suelta' })).getByLabelText('ancla: spec')).toBeTruthy()
+  })
+
+  it('el ícono de ancla muestra un tooltip con el mismo texto', async () => {
+    const b = await boardCon({ trabajos: [specSuelta] })
+    fireEvent.pointerMove(within(b).getByLabelText('ancla: spec'), { pointerType: 'mouse' })
+    expect((await screen.findByRole('tooltip')).textContent).toBe('ancla: spec')
   })
 })

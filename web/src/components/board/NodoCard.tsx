@@ -2,7 +2,7 @@ import { cn } from 'cn'
 import type { Nodo, Trabajo } from '@/lib/api'
 import { edadCorta } from '@/lib/time'
 import { etapaInfo, refCorta } from '../etapas'
-import { ChipRef, EtapaDot, SubEstadoBadge } from '../marcas'
+import { ChipRef, EtapaDot, SinTrazaBadge, SubEstadoBadge } from '../marcas'
 
 function etiqueta(t: Trabajo, n: Nodo): string {
   return `${t.titulo} · ${etapaInfo(n.etapa).nombre.toLowerCase()} · ${n.subEstado}`
@@ -33,11 +33,12 @@ export function NodoCard({ trabajo, nodo, now, onOpen }: { trabajo: Trabajo; nod
         <span className="truncate text-sm font-semibold">{trabajo.titulo}</span>
       </span>
       <span className="flex min-w-0 items-center justify-between gap-2">
-        <ChipRef>{nodo.capa ? `${nodo.capa} ${referencia(trabajo, nodo)}` : referencia(trabajo, nodo)}</ChipRef>
+        <ChipRef ancla={trabajo.ancla.tipo}>{nodo.capa ? `${nodo.capa} ${referencia(trabajo, nodo)}` : referencia(trabajo, nodo)}</ChipRef>
         <span className="shrink-0 font-mono text-xs text-fg-muted tabular-nums">{edadCorta(nodo.ts, now)}</span>
       </span>
       <span className="flex min-w-0 items-center gap-2 overflow-hidden">
         <SubEstadoBadge subEstado={nodo.subEstado} />
+        {trabajo.sinHistoria && <SinTrazaBadge />}
         {nodo.tags && nodo.tags.length > 0 && <ChipRef>{nodo.tags.join(' ')}</ChipRef>}
       </span>
     </button>

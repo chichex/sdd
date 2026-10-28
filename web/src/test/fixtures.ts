@@ -60,6 +60,33 @@ export const idea: Trabajo = {
   ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('idea', 'abierto', { stale: true })] }],
 }
 
+// Grill viejo sin ningún evento: el visor lo marca «sin traza».
+export const sinTraza: Trabajo = {
+  id: 'o/b/grill/2026-09-01-viejo',
+  repo: 'o/b',
+  titulo: 'Grill viejo',
+  ancla: { tipo: 'grill', ref: '2026-09-01-viejo' },
+  etapa: 'grill',
+  subEstado: 'pausado',
+  ultimaActividad: '2026-09-01T10:00:00Z',
+  terminado: false,
+  sinHistoria: true,
+  ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('grill', 'pausado', { refs: { ...refs, grill: '2026-09-01-viejo' }, ts: '2026-09-01T10:00:00Z' })] }],
+}
+
+export const specSuelta: Trabajo = {
+  id: 'o/a/spec/.sdd%2Fspecs%2Fsuelta.md',
+  repo: 'o/a',
+  titulo: 'Spec suelta',
+  ancla: { tipo: 'spec', ref: '.sdd/specs/suelta.md' },
+  etapa: 'spec',
+  subEstado: 'aprobada',
+  ultimaActividad: '2026-10-25T10:00:00Z',
+  terminado: false,
+  sinHistoria: false,
+  ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('spec', 'aprobada', { refs: { ...refs, spec: '.sdd/specs/suelta.md' } })] }],
+}
+
 const github = { ok: true, reason: null, fetchedAt: '2026-10-27T11:58:00Z' }
 
 function repo(id: string) {
@@ -92,4 +119,10 @@ export const detalleStack: Detalle = {
     grills: ['/ws/o/a/.sdd/grills/2026-10-01-sombras.md'],
     specs: ['/ws/o/a/.sdd/specs/sombras.md'],
   },
+}
+
+export const detalleSinTraza: Detalle = {
+  ...sinTraza,
+  gantt: [],
+  links: { issue: null, prs: [], grills: ['/ws/o/b/.git/sdd/grills/2026-09-01-viejo.md'], specs: [] },
 }

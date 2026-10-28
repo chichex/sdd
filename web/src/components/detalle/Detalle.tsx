@@ -6,9 +6,11 @@ import { useDetalle } from '@/hooks/useDetalle'
 import type { Detalle as DetalleT } from '@/lib/api'
 import { EmptyState } from '../EmptyState'
 import { refCorta } from '../etapas'
-import { ChipRef } from '../marcas'
+import { ChipRef, SinTrazaBadge } from '../marcas'
 import { Gantt } from './Gantt'
 import { Grafo } from './Grafo'
+
+const NOTA_SIN_TRAZA = 'Sin traza en events.jsonl: las etapas salen de los archivos y de GitHub, y las fechas son de modificación'
 
 function Links({ d }: { d: DetalleT }) {
   return (
@@ -57,9 +59,19 @@ export function Detalle({ id, desktop, version, hoy, onClose }: { id: string; de
   const d = estado.status === 'ok' ? estado.detalle : null
   const titulo = d ? d.titulo : estado.status === 'cargando' ? 'Cargando…' : 'Detalle'
   const chips: ReactNode = d && (
-    <span className="flex flex-wrap items-center gap-2">
-      <ChipRef>{d.repo}</ChipRef>
-      {d.ancla.tipo === 'issue' ? <ChipRef href={d.links.issue}>{d.ancla.ref}</ChipRef> : <ChipRef>{refCorta(d.ancla.ref)}</ChipRef>}
+    <span className="flex flex-col gap-2">
+      <span className="flex flex-wrap items-center gap-2">
+        <ChipRef>{d.repo}</ChipRef>
+        {d.ancla.tipo === 'issue' ? (
+          <ChipRef ancla={d.ancla.tipo} href={d.links.issue}>
+            {d.ancla.ref}
+          </ChipRef>
+        ) : (
+          <ChipRef ancla={d.ancla.tipo}>{refCorta(d.ancla.ref)}</ChipRef>
+        )}
+        {d.sinHistoria && <SinTrazaBadge />}
+      </span>
+      {d.sinHistoria && <span className="text-sm text-fg-muted">{NOTA_SIN_TRAZA}</span>}
     </span>
   )
   let cuerpo: ReactNode
