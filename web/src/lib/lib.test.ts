@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { edadCorta } from './time'
-import { readFilters, writeFilters } from './router'
+import { filtersQuery, readFilters, writeFilters } from './router'
 import { aplicarTema, guardarTema, leerTema } from './theme'
 
 describe('edadCorta', () => {
@@ -21,17 +21,35 @@ describe('edadCorta', () => {
 
 describe('filtros en la URL', () => {
   it('lee repo y filtro, con activos por default', () => {
-    expect(readFilters('?repo=chichex%2Fwaica&filtro=todos')).toEqual({ repo: 'chichex/waica', filtro: 'todos' })
-    expect(readFilters('')).toEqual({ repo: null, filtro: 'activos' })
-    expect(readFilters('?filtro=raro')).toEqual({ repo: null, filtro: 'activos' })
+    expect(readFilters('?repo=chichex%2Fwaica&filtro=todos')).toEqual({ repo: 'chichex/waica', filtro: 'todos', etapas: [], q: '' })
+    expect(readFilters('')).toEqual({ repo: null, filtro: 'activos', etapas: [], q: '' })
+    expect(readFilters('?filtro=raro')).toEqual({ repo: null, filtro: 'activos', etapas: [], q: '' })
+  })
+  it('acepta filtro=con-traza', () => {
+    expect(readFilters('?filtro=con-traza').filtro).toBe('con-traza')
+  })
+  it('lee etapa en el orden de las etapas, sin repetidos e ignorando ids desconocidos', () => {
+    expect(readFilters('?etapa=spec,grill,zzz').etapas).toEqual(['grill', 'spec'])
+    expect(readFilters('?etapa=pr,pr,idea').etapas).toEqual(['idea', 'pr'])
+    expect(readFilters('?etapa=').etapas).toEqual([])
+  })
+  it('lee q tal cual', () => {
+    expect(readFilters('?q=sombras%20suaves').q).toBe('sombras suaves')
+  })
+  it('escribe los cuatro filtros en orden, etapa con comas y en el orden de las etapas', () => {
+    expect(filtersQuery({ repo: 'o/a', filtro: 'con-traza', etapas: ['spec', 'grill'], q: 'nandu' })).toBe('?repo=o%2Fa&filtro=con-traza&etapa=grill,spec&q=nandu')
+  })
+  it('omite etapa y q vacíos', () => {
+    expect(filtersQuery({ repo: null, filtro: 'activos', etapas: [], q: '' })).toBe('')
+    expect(filtersQuery({ repo: null, filtro: 'todos', etapas: [], q: '' })).toBe('?filtro=todos')
   })
   it('escribe con replaceState sin sumar historia y omite los defaults', () => {
     window.history.replaceState(null, '', '/?x=1')
     const before = window.history.length
-    writeFilters({ repo: 'chichex/waica', filtro: 'todos' })
+    writeFilters({ repo: 'chichex/waica', filtro: 'todos', etapas: [], q: '' })
     expect(window.location.search).toBe('?repo=chichex%2Fwaica&filtro=todos')
     expect(window.history.length).toBe(before)
-    writeFilters({ repo: null, filtro: 'activos' })
+    writeFilters({ repo: null, filtro: 'activos', etapas: [], q: '' })
     expect(window.location.search).toBe('')
   })
 })
