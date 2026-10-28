@@ -12,6 +12,7 @@ import { Detalle } from '@/components/detalle/Detalle'
 import { useHealth, useLocationPath, useMediaQuery, useNow, useRefresh, useTema } from '@/hooks/ui'
 import { useWorkspace } from '@/hooks/useWorkspace'
 import type { Trabajo, Workspace } from '@/lib/api'
+import { armarVista } from '@/lib/filtrar'
 import { filtersQuery, navigate, readFilters, trabajoFromPath, trabajoPath, writeFilters, type Filters } from '@/lib/router'
 
 function conteos(ws: Workspace | null) {
@@ -37,7 +38,8 @@ export default function App() {
   if (!listo && data && !data.scanning) setListo(true)
 
   const repos = useMemo(() => conteos(data), [data])
-  const trabajos = (data?.trabajos ?? []).filter((t) => !filters.repo || t.repo === filters.repo)
+  const base = (data?.trabajos ?? []).filter((t) => !filters.repo || t.repo === filters.repo)
+  const vista = armarVista(base, filters)
   const set = (patch: Partial<Filters>) => writeFilters({ ...filters, ...patch })
   const abrir = (t: Trabajo) => navigate(trabajoPath(t.id, filters))
   const refreshButton = (
@@ -51,8 +53,8 @@ export default function App() {
     contenido = (
       <EmptyState comando="sdd --dir <otra carpeta>">No hay repos con .sdd/project.md bajo {data.root}. Corré el visor en otra carpeta:</EmptyState>
     )
-  else if (desktop) contenido = <Board trabajos={trabajos} now={now} onOpen={abrir} />
-  else contenido = <ListaTrabajos trabajos={trabajos} now={now} onOpen={abrir} />
+  else if (desktop) contenido = <Board vista={vista} now={now} onOpen={abrir} />
+  else contenido = <ListaTrabajos vista={vista} now={now} onOpen={abrir} />
 
   return (
     <TooltipProvider>

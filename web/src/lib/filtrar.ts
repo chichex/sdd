@@ -1,6 +1,7 @@
 // Filtrado y agrupado del lado del cliente sobre la respuesta de
 // /api/workspace: búsqueda por texto, etapas elegidas y grupos por repo.
 import { ETAPAS, type Trabajo } from './api'
+import type { Filters } from './router'
 
 export interface Grupo {
   repo: string
@@ -37,4 +38,31 @@ export function coincide(q: string, t: Trabajo): boolean {
   const aguja = normalizar(q).trim()
   if (!aguja) return true
   return [t.titulo, t.repo, t.ancla.ref, t.id].some((campo) => normalizar(campo).includes(aguja))
+}
+
+/** Lo que el board y la lista dibujan con los filtros aplicados. */
+export interface Vista {
+  /** Los trabajos que pasan etapa y búsqueda, incluidos los sin traza. */
+  visibles: Trabajo[]
+  /** Los grupos por repo que se dibujan abiertos. */
+  grupos: Grupo[]
+  /** Solo con «todos»: los sin traza, agrupados igual, para el grupo colapsado. */
+  sinTraza: Grupo[]
+  nSinTraza: number
+  /** false si la respuesta trae trabajos de un solo repo: no hacen falta encabezados. */
+  encabezados: boolean
+}
+
+/** Aplica etapa y búsqueda sobre la respuesta y, con «todos», aparta los sin traza. */
+export function armarVista(base: readonly Trabajo[], f: Pick<Filters, 'filtro' | 'etapas' | 'q'>): Vista {
+  const visibles = base.filter((t) => (f.etapas.length === 0 || f.etapas.includes(t.etapa)) && coincide(f.q, t))
+  const sinTraza = f.filtro === 'todos' ? visibles.filter((t) => t.sinHistoria) : []
+  const abiertos = f.filtro === 'todos' ? visibles.filter((t) => !t.sinHistoria) : visibles
+  return {
+    visibles,
+    grupos: agrupar(abiertos),
+    sinTraza: agrupar(sinTraza),
+    nSinTraza: sinTraza.length,
+    encabezados: new Set(base.map((t) => t.repo)).size > 1,
+  }
 }

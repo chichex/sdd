@@ -1,6 +1,8 @@
 import type { Trabajo } from '@/lib/api'
+import type { Grupo, Vista } from '@/lib/filtrar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ETAPA_INFO } from '../etapas'
+import { EncabezadoRepo, GrupoSinTraza } from '../Grupos'
 import { EtapaDot } from '../marcas'
 import { moverFoco } from './keyboard'
 import { Tira } from './Tira'
@@ -18,10 +20,33 @@ function Fondos() {
   )
 }
 
-/** Board de desktop: siete carriles fijos y una tira por trabajo. El scroll horizontal vive solo acá. */
-export function Board({ trabajos, now, onOpen }: { trabajos: Trabajo[]; now: Date; onOpen: (t: Trabajo) => void }) {
+interface GruposProps {
+  grupos: Grupo[]
+  encabezados: boolean
+  now: Date
+  onOpen: (t: Trabajo) => void
+}
+
+/** Tiras por repo; el encabezado de cada repo cruza los siete carriles. */
+function Grupos({ grupos, encabezados, now, onOpen }: GruposProps) {
+  return grupos.map((g) => (
+    <div key={g.repo}>
+      {encabezados && <EncabezadoRepo repo={g.repo} n={g.trabajos.length} className="relative mt-2" />}
+      {g.trabajos.map((t) => (
+        <Tira key={t.id} trabajo={t} now={now} onOpen={() => onOpen(t)} />
+      ))}
+    </div>
+  ))
+}
+
+/**
+ * Board de desktop: siete carriles fijos y una tira por trabajo, agrupadas por
+ * repo; con «todos», los sin traza al final en un grupo colapsado. Los
+ * carriles cuentan los nodos de todo lo visible. El scroll horizontal vive solo acá.
+ */
+export function Board({ vista, now, onOpen }: { vista: Vista; now: Date; onOpen: (t: Trabajo) => void }) {
   const counts = new Map(ETAPA_INFO.map((e) => [e.id, 0]))
-  for (const t of trabajos) for (const r of t.ramas) for (const n of r.nodos) counts.set(n.etapa, (counts.get(n.etapa) ?? 0) + 1)
+  for (const t of vista.visibles) for (const r of t.ramas) for (const n of r.nodos) counts.set(n.etapa, (counts.get(n.etapa) ?? 0) + 1)
   return (
     <section aria-label="Tablero" className="overflow-x-auto px-6 py-4" onKeyDown={moverFoco}>
       <div className="relative w-max pb-2">
@@ -38,9 +63,12 @@ export function Board({ trabajos, now, onOpen }: { trabajos: Trabajo[]; now: Dat
           ))}
         </div>
         <div className="relative">
-          {trabajos.map((t) => (
-            <Tira key={t.id} trabajo={t} now={now} onOpen={() => onOpen(t)} />
-          ))}
+          <Grupos grupos={vista.grupos} encabezados={vista.encabezados} now={now} onOpen={onOpen} />
+          {vista.nSinTraza > 0 && (
+            <GrupoSinTraza n={vista.nSinTraza} className="pt-2">
+              <Grupos grupos={vista.sinTraza} encabezados={vista.encabezados} now={now} onOpen={onOpen} />
+            </GrupoSinTraza>
+          )}
         </div>
       </div>
     </section>
