@@ -122,4 +122,12 @@ Base: shadcn/ui sobre Tailwind 4, con sus tokens mapeados a los de arriba. Los c
 
 ## Ajustes de este proyecto
 <!-- design-system:ajustes:start -->
+Piezas del visor sumadas por la spec `visor-anclas-traza-filtros` (2026-10-28). Usan solo los tokens de este doc.
+
+- **Barra de filtros**: barra bajo la cabecera, 40 px en desktop, fondo `--color-bg`, borde inferior `--color-border`, gutter `6`. Lleva el Input de búsqueda (32 px, 280 px de ancho, ícono `search` de 16 px en `--color-fg-muted` y botón `ghost` de limpiar con ícono `x` y `aria-label` «Limpiar búsqueda») y las chips de las siete etapas. En celular (<768 px) solo el Input, a ancho completo, de 44 px y `font-size` 16 px; las etapas se mudan al Sidebar.
+- **Chip de etapa**: botón de 28 px, radio `md`, un solo borde `--color-border`, texto `xs` 500 con el nombre de la etapa y el conteo en `--font-mono`; activa con `--color-primary-subtle` y `--color-primary-text`, con `aria-pressed` y multi-selección. En el Sidebar, sección Etapas, es una fila de 44 px con punto de etapa, nombre, conteo y tilde que no cierra el menú.
+- **Badge sin traza**: `Badge` `neutral` (`--color-fg-secondary` sobre `--color-bg-muted`) con el texto literal «sin traza», para trabajos sin eventos en `events.jsonl`. Va en la tercera fila del nodo después del sub-estado, en la fila de la lista y junto a los chips del detalle, que además suma una nota `sm` en `--color-fg-muted`.
+- **Encabezado de repo**: `h3` con `owner/repo` en `--font-mono` `xs` 600 mayúsculas `--color-fg-secondary`, conteo a la derecha en `--color-fg-muted`, fondo `--color-bg-subtle`, radio `sm`, 28 px de alto. En el board cruza los siete carriles; en la lista es `sticky` arriba. Se omite si la respuesta trae un solo repo.
+- **Grupo colapsado**: «Sin traza (N)» al final del board y de la lista, solo con el filtro «todos»: `Button` `ghost` de 32 px con chevron de 16 px (`chevron-right` cerrado, `chevron-down` abierto) y `aria-expanded`. Cerrado por default; con N = 0 no se dibuja. Abierto, muestra sus trabajos agrupados por repo.
+- **Ícono de ancla**: ícono lucide de 14 px en `--color-fg-muted` según el tipo (`circle-dot` issue, `messages-square` grill, `file-text` spec), dentro del chip de referencia del nodo y del chip del ancla del detalle (fuera del link) y en la fila de la lista. `role="img"` con `aria-label` «ancla: <tipo>» y Tooltip con el mismo texto.
 <!-- design-system:ajustes:end -->
