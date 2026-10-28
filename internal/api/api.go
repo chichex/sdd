@@ -61,20 +61,32 @@ func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "version": s.version, "root": s.src.Snapshot().Root})
 }
 
-func (s *Server) workspace(w http.ResponseWriter, r *http.Request) {
-	filtro := r.URL.Query().Get("filtro")
-	if filtro == "" {
-		filtro = "activos"
+// filtroDe dice qué trabajos entran en cada valor de ?filtro=: «activos» son
+// los que tienen traza y no terminaron, «con-traza» suma los terminados y
+// «todos» no saca nada. ok es false para un valor desconocido.
+func filtroDe(filtro string) (incluir func(model.Trabajo) bool, ok bool) {
+	switch filtro {
+	case "", "activos":
+		return func(tr model.Trabajo) bool { return !tr.SinHistoria && !tr.Terminado }, true
+	case "con-traza":
+		return func(tr model.Trabajo) bool { return !tr.SinHistoria }, true
+	case "todos":
+		return func(model.Trabajo) bool { return true }, true
 	}
-	if filtro != "activos" && filtro != "todos" {
-		writeError(w, http.StatusBadRequest, "filtro debe ser activos o todos")
+	return nil, false
+}
+
+func (s *Server) workspace(w http.ResponseWriter, r *http.Request) {
+	incluir, ok := filtroDe(r.URL.Query().Get("filtro"))
+	if !ok {
+		writeError(w, http.StatusBadRequest, "filtro debe ser activos, con-traza o todos")
 		return
 	}
 	snap := s.src.Snapshot()
 	repo := r.URL.Query().Get("repo")
 	trabajos := make([]model.Trabajo, 0, len(snap.Trabajos))
 	for _, tr := range snap.Trabajos {
-		if (repo == "" || tr.Repo == repo) && (filtro == "todos" || !tr.Terminado) {
+		if (repo == "" || tr.Repo == repo) && incluir(tr) {
 			trabajos = append(trabajos, tr)
 		}
 	}
