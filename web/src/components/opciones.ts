@@ -6,6 +6,7 @@ import type { SegmentedOption } from './Segmented'
 
 export const FILTROS: ReadonlyArray<SegmentedOption<Filtro>> = [
   { value: 'activos', label: 'Activos' },
+  { value: 'con-traza', label: 'Con traza' },
   { value: 'todos', label: 'Todos' },
 ]
 
