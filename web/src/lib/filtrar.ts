@@ -1,6 +1,6 @@
 // Filtrado y agrupado del lado del cliente sobre la respuesta de
 // /api/workspace: búsqueda por texto, etapas elegidas y grupos por repo.
-import { ETAPAS, type Trabajo } from './api'
+import { ETAPAS, type Etapa, type Trabajo } from './api'
 import type { Filters } from './router'
 
 export interface Grupo {
@@ -65,4 +65,14 @@ export function armarVista(base: readonly Trabajo[], f: Pick<Filters, 'filtro' |
     nSinTraza: sinTraza.length,
     encabezados: new Set(base.map((t) => t.repo)).size > 1,
   }
+}
+
+/** Trabajos por etapa en la respuesta, sin aplicar etapa ni búsqueda (conteo de las chips). */
+export function conteoPorEtapa(trabajos: readonly Trabajo[]): Map<Etapa, number> {
+  return new Map(ETAPAS.map((e) => [e, trabajos.filter((t) => t.etapa === e).length]))
+}
+
+/** Suma o saca una etapa de la selección, que queda en el orden del flujo. */
+export function alternarEtapa(etapas: readonly Etapa[], etapa: Etapa): Etapa[] {
+  return ETAPAS.filter((e) => (e === etapa ? !etapas.includes(e) : etapas.includes(e)))
 }

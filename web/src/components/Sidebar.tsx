@@ -3,14 +3,19 @@ import { cn } from 'cn'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import type { Filtro } from '@/lib/router'
 import type { Tema } from '@/lib/theme'
+import type { EtapasProps } from './BarraFiltros'
+import { ETAPA_INFO } from './etapas'
+import { EtapaDot } from './marcas'
 import { FILTROS, TEMAS } from './opciones'
 import type { RepoCount } from './RepoSelect'
 import { Segmented } from './Segmented'
 
-function Fila({ activa, children, onClick }: { activa: boolean; children: React.ReactNode; onClick: () => void }) {
+/** Fila de 44 px con tilde; `toggle` la vuelve un botón de alternar (aria-pressed). */
+function Fila({ activa, toggle, children, onClick }: { activa: boolean; toggle?: boolean; children: React.ReactNode; onClick: () => void }) {
   return (
     <button
       type="button"
+      aria-pressed={toggle ? activa : undefined}
       onClick={onClick}
       className={cn('flex h-11 w-full cursor-pointer items-center gap-2 rounded-md px-3 text-left text-base', activa ? 'bg-primary-subtle text-primary-text' : 'hover:bg-bg-muted')}
     >
@@ -29,8 +34,8 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
   )
 }
 
-/** Menú lateral de celular: repo, filtro y tema; se cierra al elegir. */
-export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, filtro, tema, version, root, onRepo, onFiltro, onTema }: {
+/** Menú lateral de celular: repo, filtro, etapas y tema; repo y filtro lo cierran, las etapas no. */
+export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, filtro, tema, version, root, onRepo, onFiltro, onTema, etapas, conteos, onEtapa }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   returnFocus: React.RefObject<HTMLButtonElement | null>
@@ -44,7 +49,7 @@ export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, f
   onRepo: (repo: string | null) => void
   onFiltro: (f: Filtro) => void
   onTema: (t: Tema) => void
-}) {
+} & EtapasProps) {
   const elegir = <T,>(fn: (v: T) => void) => (v: T) => {
     fn(v)
     onOpenChange(false)
@@ -60,7 +65,7 @@ export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, f
         className="w-[280px] max-w-[85%] gap-2 overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:max-w-[280px]">
         <SheetHeader className="px-4 py-3">
           <SheetTitle>sdd</SheetTitle>
-          <SheetDescription className="sr-only">Repo, filtro y tema del tablero</SheetDescription>
+          <SheetDescription className="sr-only">Repo, filtro, etapas y tema del tablero</SheetDescription>
         </SheetHeader>
         <Seccion titulo="Repo">
           <Fila activa={repo === null} onClick={() => elegir(onRepo)(null)}>
@@ -76,6 +81,14 @@ export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, f
           {FILTROS.map((f) => (
             <Fila key={f.value} activa={filtro === f.value} onClick={() => elegir(onFiltro)(f.value)}>
               {f.label}
+            </Fila>
+          ))}
+        </Seccion>
+        <Seccion titulo="Etapas">
+          {ETAPA_INFO.map((e) => (
+            <Fila key={e.id} activa={etapas.includes(e.id)} toggle onClick={() => onEtapa(e.id)}>
+              <EtapaDot etapa={e.id} />
+              <span className="flex-1 truncate">{e.nombre}</span> <span className="font-mono text-xs text-fg-muted">{conteos.get(e.id) ?? 0}</span>
             </Fila>
           ))}
         </Seccion>

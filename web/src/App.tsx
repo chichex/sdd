@@ -1,7 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Banner } from '@/components/Banner'
+import { BarraFiltros } from '@/components/BarraFiltros'
 import { Board, BoardSkeleton } from '@/components/board/Board'
 import { EmptyState } from '@/components/EmptyState'
 import { ListaTrabajos } from '@/components/ListaTrabajos'
@@ -11,8 +13,8 @@ import { Sidebar } from '@/components/Sidebar'
 import { Detalle } from '@/components/detalle/Detalle'
 import { useHealth, useLocationPath, useMediaQuery, useNow, useRefresh, useTema } from '@/hooks/ui'
 import { useWorkspace } from '@/hooks/useWorkspace'
-import type { Trabajo, Workspace } from '@/lib/api'
-import { armarVista } from '@/lib/filtrar'
+import type { Etapa, Trabajo, Workspace } from '@/lib/api'
+import { alternarEtapa, armarVista, conteoPorEtapa } from '@/lib/filtrar'
 import { filtersQuery, navigate, readFilters, trabajoFromPath, trabajoPath, writeFilters, type Filters } from '@/lib/router'
 
 function conteos(ws: Workspace | null) {
@@ -41,6 +43,7 @@ export default function App() {
   const base = (data?.trabajos ?? []).filter((t) => !filters.repo || t.repo === filters.repo)
   const vista = armarVista(base, filters)
   const set = (patch: Partial<Filters>) => writeFilters({ ...filters, ...patch })
+  const etapas = { etapas: filters.etapas, conteos: conteoPorEtapa(base), onEtapa: (e: Etapa) => set({ etapas: alternarEtapa(filters.etapas, e) }) }
   const abrir = (t: Trabajo) => navigate(trabajoPath(t.id, filters))
   const refreshButton = (
     <Refresh fetchedAt={data?.github.fetchedAt ?? null} now={now} refreshing={refreshing} failed={failed} onRefresh={() => void refresh()} />
@@ -53,6 +56,12 @@ export default function App() {
     contenido = (
       <EmptyState comando="sdd --dir <otra carpeta>">No hay repos con .sdd/project.md bajo {data.root}. Corré el visor en otra carpeta:</EmptyState>
     )
+  else if (base.length > 0 && vista.visibles.length === 0)
+    contenido = (
+      <EmptyState accion={<Button variant="secondary" onClick={() => set({ etapas: [], q: '' })}>Limpiar filtros</Button>}>
+        Ningún trabajo coincide con los filtros
+      </EmptyState>
+    )
   else if (desktop) contenido = <Board vista={vista} now={now} onOpen={abrir} />
   else contenido = <ListaTrabajos vista={vista} now={now} onOpen={abrir} />
 
@@ -64,6 +73,7 @@ export default function App() {
         ) : (
           <NavegacionCelular repo={filters.repo} onMenu={() => setMenu(true)} refresh={refreshButton} menuRef={menuRef} />
         )}
+        <BarraFiltros desktop={desktop} q={filters.q} onQ={(q) => set({ q })} {...etapas} />
         {data && !data.github.ok && (
           <Banner tone="warning" onRetry={() => void refresh()}>
             Sin GitHub: mostrando solo lo local
@@ -96,6 +106,7 @@ export default function App() {
             onRepo={(repo) => set({ repo })}
             onFiltro={(filtro) => set({ filtro })}
             onTema={setTema}
+            {...etapas}
           />
         )}
         <Toaster position={desktop ? 'bottom-right' : 'bottom-center'} theme={tema === 'sistema' ? 'system' : tema === 'oscuro' ? 'dark' : 'light'} />
