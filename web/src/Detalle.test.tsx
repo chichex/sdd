@@ -69,3 +69,50 @@ describe('detalle de un trabajo', () => {
     expect(await screen.findByRole('dialog', { name: 'Sombras suaves' })).toBeTruthy()
   })
 })
+
+describe('grafo del detalle', () => {
+  const filas = (grafo: Element) => [...grafo.querySelectorAll('[data-grafo-nodo]')].map((g) => [...g.querySelectorAll('text')].map((t) => t.textContent))
+
+  it('en celular es vertical: ocupa el ancho del contenedor, sin scroll horizontal', async () => {
+    celular()
+    abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}`)
+    const sheet = await screen.findByRole('dialog', { name: 'Sombras suaves' })
+    const grafo = within(sheet).getByRole('img', { name: 'Grafo' })
+    expect(grafo.getAttribute('width')).toBe('100%')
+    expect(grafo.getAttribute('viewBox')).toMatch(/^0 0 340 \d+$/)
+    expect(grafo.parentElement?.className).not.toContain('overflow-x-auto')
+    expect(grafo.querySelectorAll('[data-grafo-nodo]')).toHaveLength(9)
+    expect(grafo.querySelectorAll('[data-activo]')).toHaveLength(1)
+    expect(grafo.querySelectorAll('[data-rama="run-1"]')).toHaveLength(1)
+  })
+
+  it('en celular cada nodo muestra etiqueta, sub-estado y fecha como texto, de arriba hacia abajo', async () => {
+    celular()
+    abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}`)
+    const grafo = within(await screen.findByRole('dialog', { name: 'Sombras suaves' })).getByRole('img', { name: 'Grafo' })
+    const textos = filas(grafo)
+    expect(textos.map((t) => t.slice(0, 2))).toEqual([
+      ['Grill', 'finalizado'],
+      ['Spec', 'implementada'],
+      ['Run', 'con PR'],
+      ['PR 1/3', 'mergeado'],
+      ['PR 2/3', 'mergeado'],
+      ['PR 3/3', 'validado'],
+      ['Mergeado 1/3', 'mergeado'],
+      ['Mergeado 2/3', 'mergeado'],
+      ['Run', 'fallado (interrupted)'],
+    ])
+    expect(textos.every((t) => t.length === 3 && /\d/.test(t[2] ?? ''))).toBe(true)
+    const activo = grafo.querySelector('[data-activo] text')
+    expect(activo?.textContent).toBe('Mergeado 2/3')
+  })
+
+  it('en desktop sigue horizontal, con su contenedor con scroll', async () => {
+    abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}`)
+    const grafo = within(await screen.findByRole('dialog', { name: 'Sombras suaves' })).getByRole('img', { name: 'Grafo' })
+    expect(grafo.getAttribute('width')).toBe('968')
+    expect(grafo.getAttribute('height')).toBe('200')
+    expect(grafo.parentElement?.className).toContain('overflow-x-auto')
+    expect(grafo.querySelectorAll('[data-grafo-nodo]')).toHaveLength(9)
+  })
+})

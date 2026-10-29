@@ -34,12 +34,12 @@ function Links({ d }: { d: DetalleT }) {
   )
 }
 
-function Contenido({ d, hoy }: { d: DetalleT; hoy: Date }) {
+function Contenido({ d, hoy, vertical }: { d: DetalleT; hoy: Date; vertical: boolean }) {
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <section className="flex flex-col gap-2">
         <h3 className="text-xs font-semibold tracking-wide text-fg-secondary uppercase">Grafo</h3>
-        <Grafo trabajo={d} />
+        <Grafo trabajo={d} vertical={vertical} />
       </section>
       <section className="flex flex-col gap-2">
         <h3 className="text-xs font-semibold tracking-wide text-fg-secondary uppercase">Gantt</h3>
@@ -75,7 +75,7 @@ export function Detalle({ id, desktop, version, hoy, onClose }: { id: string; de
     </span>
   )
   let cuerpo: ReactNode
-  if (d) cuerpo = <Contenido d={d} hoy={hoy} />
+  if (d) cuerpo = <Contenido d={d} hoy={hoy} vertical={!desktop} />
   else if (estado.status === 'no-encontrado') cuerpo = <EmptyState>Trabajo no encontrado</EmptyState>
   else if (estado.status === 'error') cuerpo = <EmptyState>No se pudo leer el trabajo ({estado.error}).</EmptyState>
   else cuerpo = <Skeleton className="h-48 w-full" />
