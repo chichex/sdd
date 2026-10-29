@@ -28,6 +28,26 @@ export function agrupar(trabajos: readonly Trabajo[]): Grupo[] {
   }))
 }
 
+/** Los trabajos consecutivos de un grupo que comparten etapa. */
+export interface Seccion {
+  etapa: Etapa
+  trabajos: Trabajo[]
+}
+
+/**
+ * Parte los trabajos de un grupo, que `agrupar` ya dejó ordenados por etapa,
+ * en una sección por etapa presente: mismo orden de entrada, sin perder ninguno.
+ */
+export function seccionarPorEtapa(trabajos: readonly Trabajo[]): Seccion[] {
+  const secciones: Seccion[] = []
+  for (const t of trabajos) {
+    const ultima = secciones.at(-1)
+    if (ultima?.etapa === t.etapa) ultima.trabajos.push(t)
+    else secciones.push({ etapa: t.etapa, trabajos: [t] })
+  }
+  return secciones
+}
+
 /** Minúsculas y sin acentos (NFD sin marcas combinantes): «Ñandú» → «nandu». */
 export function normalizar(s: string): string {
   return s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()

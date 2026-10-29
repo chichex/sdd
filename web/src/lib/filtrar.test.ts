@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Etapa, Trabajo } from './api'
-import { agrupar, armarVista, coincide } from './filtrar'
+import { agrupar, armarVista, coincide, seccionarPorEtapa } from './filtrar'
 
 function trabajo(id: string, repo: string, etapa: Etapa, ultimaActividad: string, over: Partial<Trabajo> = {}): Trabajo {
   return {
@@ -41,6 +41,37 @@ describe('agrupar', () => {
 
   it('sin trabajos no hay grupos', () => {
     expect(agrupar([])).toEqual([])
+  })
+})
+
+describe('seccionarPorEtapa', () => {
+  const pr1 = trabajo('pr1', 'o/a', 'pr', '2026-10-27T10:00:00Z')
+  const pr2 = trabajo('pr2', 'o/a', 'pr', '2026-10-26T10:00:00Z')
+  const idea = trabajo('idea', 'o/a', 'idea', '2026-10-25T10:00:00Z')
+
+  it('parte en secciones consecutivas, una por etapa, sin reordenar ni perder trabajos', () => {
+    expect(seccionarPorEtapa([pr1, pr2, idea])).toEqual([
+      { etapa: 'pr', trabajos: [pr1, pr2] },
+      { etapa: 'idea', trabajos: [idea] },
+    ])
+  })
+
+  it('sin trabajos no hay secciones', () => {
+    expect(seccionarPorEtapa([])).toEqual([])
+  })
+
+  it('con una sola etapa hay una sola sección', () => {
+    expect(seccionarPorEtapa([pr1, pr2])).toEqual([{ etapa: 'pr', trabajos: [pr1, pr2] }])
+  })
+
+  it('sobre la salida de agrupar, las secciones siguen el orden del grupo', () => {
+    const [grupo] = agrupar([idea, pr2, trabajo('spec', 'o/a', 'spec', '2026-10-24T10:00:00Z'), pr1])
+    const secciones = seccionarPorEtapa(grupo?.trabajos ?? [])
+    expect(secciones.map((s) => [s.etapa, s.trabajos.map((t) => t.id)])).toEqual([
+      ['pr', ['pr1', 'pr2']],
+      ['spec', ['spec']],
+      ['idea', ['idea']],
+    ])
   })
 })
 
