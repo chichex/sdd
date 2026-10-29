@@ -104,8 +104,33 @@ var titlePrefix = regexp.MustCompile(`(?i)^(?:spec|grill)\s*[:—–-]\s*`)
 
 func cleanTitle(h1 string) string { return strings.TrimSpace(titlePrefix.ReplaceAllString(h1, "")) }
 
+var (
+	specSlug  = regexp.MustCompile(`^\.sdd/specs/([^/]+)\.md$`)
+	grillSlug = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-(.+)$`)
+)
+
+// anchorSlug es el nombre legible de un ancla sin título: el archivo de una
+// spec sin su ruta ni extensión y el grill sin su prefijo de fecha. Cualquier
+// otra referencia (un issue, una ruta que no es `.sdd/specs/<slug>.md`) queda
+// tal cual.
+func anchorSlug(a Ancla) string {
+	var re *regexp.Regexp
+	switch a.Tipo {
+	case "spec":
+		re = specSlug
+	case "grill":
+		re = grillSlug
+	default:
+		return a.Ref
+	}
+	if m := re.FindStringSubmatch(a.Ref); m != nil {
+		return m[1]
+	}
+	return a.Ref
+}
+
 // title: título del issue, si no H1 de la spec más nueva, si no H1 del grill,
-// si no la referencia del ancla.
+// si no el slug del ancla.
 func (d *deriver) title() string {
 	if is, ok := d.openIssue(); ok && is.Title != "" {
 		return is.Title
@@ -117,7 +142,7 @@ func (d *deriver) title() string {
 			}
 		}
 	}
-	return d.grp.anchor.Ref
+	return anchorSlug(d.grp.anchor)
 }
 
 func issueURL(repo scan.Repo, issue string) *string {

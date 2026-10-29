@@ -222,3 +222,53 @@ func deref(s *string) string {
 	}
 	return *s
 }
+
+func TestBuild_TituloSlug(t *testing.T) {
+	mtime := time.Date(2026, 9, 1, 12, 0, 0, 0, time.UTC)
+	ev := func(name, issue, spec, grill string) events.Event {
+		return events.Event{V: 1, TS: "2026-10-01T10:00:00Z", Harness: "claude", Event: name, Issue: issue, Spec: spec, Grill: grill}
+	}
+	conH1 := artifact("spec", "vieja", "<!-- SDD-Tracking: version=1; type=spec; state=approved; issue=none; grill=none; superseded-by=none -->", mtime)
+	conH1.Title = "Spec — Título real"
+	tests := []struct {
+		name       string
+		data       scan.Data
+		wantRef    string
+		wantID     string
+		wantTitulo string
+	}{
+		{"spec solo en eventos: el slug sin ruta ni extensión",
+			scan.Data{Events: []events.Event{ev("spec.published", "", ".sdd/specs/foo-bar.md", "")}},
+			".sdd/specs/foo-bar.md", "o/r/spec/.sdd%2Fspecs%2Ffoo-bar.md", "foo-bar"},
+		{"grill sin H1: el slug sin el prefijo de fecha",
+			scan.Data{Events: []events.Event{ev("grill.finalized", "", "", "2026-10-01-norte")}},
+			"2026-10-01-norte", "o/r/grill/2026-10-01-norte", "norte"},
+		{"issue sin título: la referencia tal cual",
+			scan.Data{Events: []events.Event{ev("spec.published", "#9", ".sdd/specs/x.md", "")}},
+			"#9", "o/r/issue/9", "#9"},
+		{"ruta de spec anidada: la referencia tal cual",
+			scan.Data{Events: []events.Event{ev("spec.published", "", ".sdd/specs/sub/anidada.md", "")}},
+			".sdd/specs/sub/anidada.md", "o/r/spec/.sdd%2Fspecs%2Fsub%2Fanidada.md", ".sdd/specs/sub/anidada.md"},
+		{"grill sin prefijo de fecha: la referencia tal cual",
+			scan.Data{Events: []events.Event{ev("grill.finalized", "", "", "norte")}},
+			"norte", "o/r/grill/norte", "norte"},
+		{"con H1 en la spec el título es el H1, no el slug",
+			scan.Data{Specs: []scan.Artifact{conH1}},
+			".sdd/specs/vieja.md", "o/r/spec/.sdd%2Fspecs%2Fvieja.md", "Título real"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.data.Repo = scan.Repo{ID: "o/r"}
+			got := Build([]RepoInput{{Data: tc.data}})
+			if len(got) != 1 {
+				t.Fatalf("trabajos = %d, want 1", len(got))
+			}
+			if got[0].Titulo != tc.wantTitulo {
+				t.Errorf("Titulo = %q, want %q", got[0].Titulo, tc.wantTitulo)
+			}
+			if got[0].Ancla.Ref != tc.wantRef || got[0].ID != tc.wantID {
+				t.Errorf("Ancla.Ref = %q, ID = %q; want %q, %q (la identidad no cambia)", got[0].Ancla.Ref, got[0].ID, tc.wantRef, tc.wantID)
+			}
+		})
+	}
+}
