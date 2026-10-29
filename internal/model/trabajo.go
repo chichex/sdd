@@ -22,6 +22,18 @@ const (
 	Publicado Etapa = "publicado"
 )
 
+// Categoria clasifica un trabajo en exactamente una de cuatro, para el control
+// «Mostrar» del front.
+type Categoria string
+
+// Categorías de un trabajo.
+const (
+	CategoriaIdea      Categoria = "idea"
+	CategoriaEnCurso   Categoria = "en-curso"
+	CategoriaTerminado Categoria = "terminado"
+	CategoriaSinTraza  Categoria = "sin-traza"
+)
+
 // Ancla identifica un trabajo: un issue, un grill o una spec.
 type Ancla struct {
 	Tipo string `json:"tipo"`
@@ -64,18 +76,19 @@ type Rama struct {
 
 // Trabajo es la unidad raíz.
 type Trabajo struct {
-	ID              string  `json:"id"`
-	Repo            string  `json:"repo"`
-	Titulo          string  `json:"titulo"`
-	Ancla           Ancla   `json:"ancla"`
-	Etapa           Etapa   `json:"etapa"`
-	SubEstado       string  `json:"subEstado"`
-	UltimaActividad string  `json:"ultimaActividad"`
-	Terminado       bool    `json:"terminado"`
-	SinHistoria     bool    `json:"sinHistoria"`
-	Ramas           []Rama  `json:"ramas"`
-	Gantt           []Barra `json:"-"`
-	Links           Links   `json:"-"`
+	ID              string    `json:"id"`
+	Repo            string    `json:"repo"`
+	Titulo          string    `json:"titulo"`
+	Ancla           Ancla     `json:"ancla"`
+	Etapa           Etapa     `json:"etapa"`
+	SubEstado       string    `json:"subEstado"`
+	UltimaActividad string    `json:"ultimaActividad"`
+	Terminado       bool      `json:"terminado"`
+	SinHistoria     bool      `json:"sinHistoria"`
+	Categoria       Categoria `json:"categoria"`
+	Ramas           []Rama    `json:"ramas"`
+	Gantt           []Barra   `json:"-"`
+	Links           Links     `json:"-"`
 }
 
 // Barra es una fila del Gantt.

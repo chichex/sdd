@@ -66,9 +66,25 @@ func derive(in RepoInput, grp *group, linked []int) Trabajo {
 		}
 	}
 	tr.Terminado = d.tagged || (d.mergedComplete() && (grp.anchor.Tipo != "issue" || d.issueClosed()))
+	tr.Categoria = categoriaDe(len(grp.items), tr.SinHistoria, tr.Terminado)
 	tr.Gantt = d.gantt(tr.Ramas)
 	tr.Links = d.links()
 	return tr
+}
+
+// categoriaDe elige la única categoría del trabajo: idea si su grupo no tiene
+// ítems (un issue abierto sin trabajo SDD); si no, sin-traza si ningún ítem es
+// un evento; si no, terminado si lo está; si no, en-curso.
+func categoriaDe(items int, sinHistoria, terminado bool) Categoria {
+	switch {
+	case items == 0:
+		return CategoriaIdea
+	case sinHistoria:
+		return CategoriaSinTraza
+	case terminado:
+		return CategoriaTerminado
+	}
+	return CategoriaEnCurso
 }
 
 // trabajoID es `<repo>/issue/<NN>`, `/grill/<ref>` o `/spec/<ruta>`, con la
