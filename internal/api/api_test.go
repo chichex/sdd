@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"slices"
 	"sync"
@@ -44,75 +43,6 @@ func TestWorkspace_FixtureCompleto(t *testing.T) {
 	}
 }
 
-func TestWorkspace_FiltroActivos(t *testing.T) {
-	if _, err := exec.LookPath("git"); err != nil {
-		t.Skip("git no está en PATH")
-	}
-	root := t.TempDir()
-	repo := filepath.Join(root, "r")
-	if out, err := exec.Command("git", "init", "-q", repo).CombinedOutput(); err != nil {
-		t.Fatalf("git init: %v %s", err, out)
-	}
-	for _, p := range []string{filepath.Join(repo, ".sdd", "specs"), filepath.Join(repo, ".git", "sdd")} {
-		if err := os.MkdirAll(p, 0o755); err != nil {
-			t.Fatal(err)
-		}
-	}
-	if err := os.WriteFile(filepath.Join(repo, ".sdd", "project.md"), []byte("# x\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	// c es una spec sin ningún evento: el trabajo queda sinHistoria.
-	spec := "# Spec — c\n<!-- SDD-Tracking: version=1; type=spec; state=approved; issue=none; grill=none; superseded-by=none -->\n"
-	if err := os.WriteFile(filepath.Join(repo, ".sdd", "specs", "c.md"), []byte(spec), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	log := `{"v":1,"ts":"2026-10-01T10:00:00Z","harness":"claude","event":"run.pr-opened","issue":"none","spec":".sdd%2Fspecs%2Fa.md","previous":"none","grill":"none","pr":[7],"reason":"none"}` + "\n" +
-		`{"v":1,"ts":"2026-10-02T10:00:00Z","harness":"claude","event":"land.merged","issue":"none","spec":"none","previous":"none","grill":"none","pr":[7],"reason":"none"}` + "\n" +
-		`{"v":1,"ts":"2026-10-03T10:00:00Z","harness":"claude","event":"spec.published","issue":"none","spec":".sdd%2Fspecs%2Fb.md","previous":"none","grill":"none","pr":[],"reason":"none"}` + "\n"
-	if err := os.WriteFile(filepath.Join(repo, ".git", "sdd", "events.jsonl"), []byte(log), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	_, srv := start(t, workspace.Config{Root: root, WatchInterval: time.Hour})
-	waitScanned(t, srv.URL)
-	const (
-		a = "r/spec/.sdd%2Fspecs%2Fa.md" // mergeada sin issue: terminado, con traza
-		b = "r/spec/.sdd%2Fspecs%2Fb.md" // publicada: activa, con traza
-		c = "r/spec/.sdd%2Fspecs%2Fc.md" // sin eventos: sinHistoria
-	)
-	tests := []struct {
-		name  string
-		query string
-		want  []string
-	}{
-		{name: "activos por default deja solo lo no terminado con traza", query: "", want: []string{b}},
-		{name: "activos explícito es igual al default", query: "?filtro=activos", want: []string{b}},
-		{name: "con-traza suma los terminados y saca lo sin traza", query: "?filtro=con-traza", want: []string{a, b}},
-		{name: "todos devuelve todo", query: "?filtro=todos", want: []string{a, b, c}},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			var ws workspaceResp
-			if code := getJSON(t, srv.URL+"/api/workspace"+tc.query, &ws); code != http.StatusOK {
-				t.Fatalf("GET %q = %d, want 200", tc.query, code)
-			}
-			got := make([]string, 0, len(ws.Trabajos))
-			for _, tr := range ws.Trabajos {
-				got = append(got, tr.ID)
-			}
-			slices.Sort(got)
-			if !slices.Equal(got, tc.want) {
-				t.Fatalf("GET %q = %v, want %v", tc.query, got, tc.want)
-			}
-		})
-	}
-	var bad struct {
-		Error string `json:"error"`
-	}
-	if code := getJSON(t, srv.URL+"/api/workspace?filtro=otro", &bad); code != http.StatusBadRequest || bad.Error != "filtro debe ser activos, con-traza o todos" {
-		t.Fatalf("filtro inválido = %d %q, want 400 con el mensaje de los tres valores", code, bad.Error)
-	}
-}
-
 func TestWorkspace_ParcialMientrasEscanea(t *testing.T) {
 	root := fixtureWorkspace(t)
 	release := make(chan struct{})
@@ -128,7 +58,7 @@ func TestWorkspace_ParcialMientrasEscanea(t *testing.T) {
 	deadline := time.Now().Add(10 * time.Second)
 	for {
 		var ws workspaceResp
-		getJSON(t, srv.URL+"/api/workspace?filtro=todos", &ws)
+		getJSON(t, srv.URL+"/api/workspace"+queryTodas, &ws)
 		if ws.Scanning && len(ws.Repos) == 6 && len(ws.Trabajos) == 1 {
 			break // skills (1 trabajo) leído; waica bloqueado; los demás repos están después
 		}
@@ -175,7 +105,7 @@ func TestWorkspace_RefreshLocalEnVivo(t *testing.T) {
 	deadline := time.Now().Add(10 * time.Second)
 	for {
 		var ws workspaceResp
-		getJSON(t, srv.URL+"/api/workspace?filtro=todos", &ws)
+		getJSON(t, srv.URL+"/api/workspace"+queryTodas, &ws)
 		ids := make([]string, 0, len(ws.Trabajos))
 		for _, tr := range ws.Trabajos {
 			ids = append(ids, tr.ID)

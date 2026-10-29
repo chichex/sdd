@@ -29,6 +29,9 @@ type workspaceJSON struct {
 	GitHub    githubView      `json:"github"`
 	Repos     []repoView      `json:"repos"`
 	Trabajos  []model.Trabajo `json:"trabajos"`
+	// Categorias cuenta los trabajos de cada categoría tras aplicar ?repo= y
+	// antes de ?mostrar=; siempre trae las cuatro claves.
+	Categorias map[model.Categoria]int `json:"categorias"`
 }
 
 // detalleJSON es el trabajo con su Gantt y sus links, que el listado omite.
@@ -45,7 +48,7 @@ func optional(s string) *string {
 	return &s
 }
 
-func workspaceView(snap workspace.Snapshot, trabajos []model.Trabajo) workspaceJSON {
+func workspaceView(snap workspace.Snapshot, trabajos []model.Trabajo, categorias map[model.Categoria]int) workspaceJSON {
 	repos := make([]repoView, 0, len(snap.Repos))
 	for _, d := range snap.Repos {
 		errores := append(append([]string{}, d.Repo.Errores...), d.Errores...)
@@ -55,12 +58,13 @@ func workspaceView(snap workspace.Snapshot, trabajos []model.Trabajo) workspaceJ
 			GitHub: githubView{OK: gh.OK, Reason: optional(gh.Reason), FetchedAt: optional(gh.FetchedAt)}})
 	}
 	return workspaceJSON{
-		Root:      snap.Root,
-		ScannedAt: optional(snap.ScannedAt),
-		Scanning:  snap.Scanning,
-		GitHub:    githubView{OK: snap.GitHub.OK, Reason: optional(snap.GitHub.Reason), FetchedAt: optional(snap.GitHub.FetchedAt)},
-		Repos:     repos,
-		Trabajos:  trabajos,
+		Root:       snap.Root,
+		ScannedAt:  optional(snap.ScannedAt),
+		Scanning:   snap.Scanning,
+		GitHub:     githubView{OK: snap.GitHub.OK, Reason: optional(snap.GitHub.Reason), FetchedAt: optional(snap.GitHub.FetchedAt)},
+		Repos:      repos,
+		Trabajos:   trabajos,
+		Categorias: categorias,
 	}
 }
 

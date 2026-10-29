@@ -14,6 +14,9 @@ import (
 	"github.com/chichex/sdd/internal/workspace"
 )
 
+// queryTodas pide las cuatro categorías: todo lo que el server tiene.
+const queryTodas = "?mostrar=idea,en-curso,terminado,sin-traza"
+
 func fixtureWorkspace(t *testing.T) string {
 	t.Helper()
 	if _, err := exec.LookPath("git"); err != nil {
@@ -57,7 +60,8 @@ type workspaceResp struct {
 		Reason    string  `json:"reason"`
 		FetchedAt *string `json:"fetchedAt"`
 	} `json:"github"`
-	Repos []struct {
+	Categorias map[string]int `json:"categorias"`
+	Repos      []struct {
 		ID              string   `json:"id"`
 		Nombre          string   `json:"nombre"`
 		Rutas           []string `json:"rutas"`
@@ -74,6 +78,7 @@ type workspaceResp struct {
 		SubEstado       string `json:"subEstado"`
 		UltimaActividad string `json:"ultimaActividad"`
 		Terminado       bool   `json:"terminado"`
+		Categoria       string `json:"categoria"`
 		Ramas           []struct {
 			ID    string `json:"id"`
 			Nodos []struct {
@@ -105,7 +110,7 @@ func waitScanned(t *testing.T, base string) workspaceResp {
 	deadline := time.Now().Add(10 * time.Second)
 	for {
 		var ws workspaceResp
-		getJSON(t, base+"/api/workspace?filtro=todos", &ws)
+		getJSON(t, base+"/api/workspace"+queryTodas, &ws)
 		if !ws.Scanning {
 			return ws
 		}

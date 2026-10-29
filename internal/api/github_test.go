@@ -49,7 +49,7 @@ func waitGitHub(t *testing.T, base string, done func(ghResp) bool) ghResp {
 	deadline := time.Now().Add(10 * time.Second)
 	for {
 		var ws ghResp
-		getJSON(t, base+"/api/workspace?filtro=todos", &ws)
+		getJSON(t, base+"/api/workspace"+queryTodas, &ws)
 		if done(ws) {
 			return ws
 		}

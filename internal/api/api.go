@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/chichex/sdd/internal/model"
@@ -61,36 +64,55 @@ func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "version": s.version, "root": s.src.Snapshot().Root})
 }
 
-// filtroDe dice qué trabajos entran en cada valor de ?filtro=: «activos» son
-// los que tienen traza y no terminaron, «con-traza» suma los terminados y
-// «todos» no saca nada. ok es false para un valor desconocido.
-func filtroDe(filtro string) (incluir func(model.Trabajo) bool, ok bool) {
-	switch filtro {
-	case "", "activos":
-		return func(tr model.Trabajo) bool { return !tr.SinHistoria && !tr.Terminado }, true
-	case "con-traza":
-		return func(tr model.Trabajo) bool { return !tr.SinHistoria }, true
-	case "todos":
-		return func(model.Trabajo) bool { return true }, true
+// categoriasValidas son los ids de ?mostrar=, en el orden del mensaje de error.
+var categoriasValidas = []model.Categoria{model.CategoriaIdea, model.CategoriaEnCurso, model.CategoriaTerminado, model.CategoriaSinTraza}
+
+// mostrarDefault es lo que se devuelve sin ?mostrar=.
+var mostrarDefault = []model.Categoria{model.CategoriaEnCurso, model.CategoriaIdea}
+
+const mostrarError = "mostrar debe ser una lista de idea, en-curso, terminado o sin-traza"
+
+// mostrarDe lee ?mostrar=: una lista de categorías separadas por coma. Sin el
+// parámetro vale mostrarDefault; ok es false con una lista vacía o con un id
+// desconocido.
+func mostrarDe(q url.Values) (mostrar []model.Categoria, ok bool) {
+	if !q.Has("mostrar") {
+		return mostrarDefault, true
 	}
-	return nil, false
+	for _, id := range strings.Split(q.Get("mostrar"), ",") {
+		c := model.Categoria(id)
+		if !slices.Contains(categoriasValidas, c) {
+			return nil, false
+		}
+		mostrar = append(mostrar, c)
+	}
+	return mostrar, true
 }
 
 func (s *Server) workspace(w http.ResponseWriter, r *http.Request) {
-	incluir, ok := filtroDe(r.URL.Query().Get("filtro"))
+	q := r.URL.Query()
+	mostrar, ok := mostrarDe(q)
 	if !ok {
-		writeError(w, http.StatusBadRequest, "filtro debe ser activos, con-traza o todos")
+		writeError(w, http.StatusBadRequest, mostrarError)
 		return
 	}
 	snap := s.src.Snapshot()
-	repo := r.URL.Query().Get("repo")
+	repo := q.Get("repo")
+	categorias := make(map[model.Categoria]int, len(categoriasValidas))
+	for _, c := range categoriasValidas {
+		categorias[c] = 0
+	}
 	trabajos := make([]model.Trabajo, 0, len(snap.Trabajos))
 	for _, tr := range snap.Trabajos {
-		if (repo == "" || tr.Repo == repo) && incluir(tr) {
+		if repo != "" && tr.Repo != repo {
+			continue
+		}
+		categorias[tr.Categoria]++
+		if slices.Contains(mostrar, tr.Categoria) {
 			trabajos = append(trabajos, tr)
 		}
 	}
-	writeJSON(w, http.StatusOK, workspaceView(snap, trabajos))
+	writeJSON(w, http.StatusOK, workspaceView(snap, trabajos, categorias))
 }
 
 func (s *Server) trabajo(w http.ResponseWriter, r *http.Request) {

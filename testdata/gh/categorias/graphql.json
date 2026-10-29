@@ -1,0 +1,23 @@
+{
+ "data": {
+  "repository": {
+   "issues": {
+    "totalCount": 1,
+    "nodes": [
+     {
+      "number": 9,
+      "title": "Idea grabada sin trabajo SDD",
+      "url": "https://github.com/chichex/categorias/issues/9",
+      "updatedAt": "2026-10-04T10:00:00Z"
+     }
+    ]
+   },
+   "openPRs": {
+    "nodes": []
+   },
+   "recentPRs": {
+    "nodes": []
+   }
+  }
+ }
+}
