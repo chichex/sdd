@@ -1,5 +1,5 @@
 // Piezas chicas compartidas: punto de etapa, badge de sub-estado, badge «sin
-// traza», ícono de ancla y chip de referencia (DESIGN_SYSTEM.md).
+// traza», ícono y etiqueta de ancla y chip de referencia (DESIGN_SYSTEM.md).
 import type { ReactNode } from 'react'
 import { cn } from 'cn'
 import { CircleDot, FileText, MessagesSquare, type LucideIcon } from 'lucide-react'
@@ -37,6 +37,18 @@ export function AnclaIcono({ tipo }: { tipo: string }) {
       </TooltipTrigger>
       <TooltipContent>{texto}</TooltipContent>
     </Tooltip>
+  )
+}
+
+/** Tipo de ancla como texto visible (la fila de la lista no tiene hover): ícono y la palabra `issue`, `grill` o `spec`. */
+export function EtiquetaAncla({ tipo }: { tipo: string }) {
+  const Icono = ICONOS_ANCLA[tipo]
+  if (!Icono) return null
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 font-mono text-xs text-fg-muted">
+      <Icono aria-hidden className="size-3.5" />
+      {tipo}
+    </span>
   )
 }
 

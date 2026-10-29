@@ -116,7 +116,7 @@ describe('marcas de traza y ancla en la lista y el detalle', () => {
   const celular = () =>
     vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
 
-  it('la fila de un trabajo sin traza lleva ícono de ancla y badge; la de uno con traza, solo el ícono', async () => {
+  it('la fila de un trabajo sin traza lleva la palabra de su ancla y el badge; la de uno con traza, solo la palabra', async () => {
     celular()
     mockApi(workspace({ trabajos: [stack, sinTraza] }))
     mockEventSource()
@@ -124,10 +124,10 @@ describe('marcas de traza y ancla en la lista y el detalle', () => {
     const lista = await screen.findByRole('list', { name: 'Trabajos' })
     const filaSin = within(lista).getByRole('button', { name: /Grill viejo/ })
     expect(within(filaSin).getByText('sin traza')).toBeTruthy()
-    expect(within(filaSin).getByLabelText('ancla: grill')).toBeTruthy()
+    expect(within(filaSin).getByText('grill')).toBeTruthy()
     const fila = within(lista).getByRole('button', { name: /Sombras suaves/ })
     expect(within(fila).queryByText('sin traza')).toBeNull()
-    expect(within(fila).getByLabelText('ancla: issue')).toBeTruthy()
+    expect(within(fila).getByText('issue')).toBeTruthy()
   })
 
   it('el detalle de un trabajo sin traza muestra el badge junto a los chips y la nota', async () => {
