@@ -1,7 +1,7 @@
 // Dobles de la API del server para los tests del front: fetch con respuestas
 // en cola por ruta y un EventSource controlable.
 import { vi } from 'vitest'
-import type { Workspace } from '@/lib/api'
+import { MOSTRAR_DEFAULT, type Categoria, type Workspace } from '@/lib/api'
 
 type Reply = { status: number; body: unknown } | 'pending'
 
@@ -12,7 +12,24 @@ export interface ApiMock {
   holdRefresh: () => () => void
 }
 
-export function mockApi(first: Workspace | { status: number; body: unknown }): ApiMock {
+export interface MockOptions {
+  /** Responde como el server: filtra los trabajos por ?mostrar= y cuenta las cuatro categorías. */
+  servidor?: boolean
+}
+
+/** La respuesta que daría el server a esta URL partiendo de todos los trabajos. */
+function comoServidor(todo: Workspace, url: string): Workspace {
+  const pedido = new URL(url, 'http://visor.test').searchParams.get('mostrar')
+  const mostrar: readonly string[] = pedido === null ? MOSTRAR_DEFAULT : pedido.split(',')
+  const conteo = (c: Categoria) => todo.trabajos.filter((t) => t.categoria === c).length
+  return {
+    ...todo,
+    trabajos: todo.trabajos.filter((t) => mostrar.includes(t.categoria)),
+    categorias: { 'en-curso': conteo('en-curso'), idea: conteo('idea'), terminado: conteo('terminado'), 'sin-traza': conteo('sin-traza') },
+  }
+}
+
+export function mockApi(first: Workspace | { status: number; body: unknown }, opciones: MockOptions = {}): ApiMock {
   const calls: ApiMock['calls'] = []
   const detalles = new Map<string, unknown>()
   const workspaces: Reply[] = [toReply(first)]
@@ -23,6 +40,7 @@ export function mockApi(first: Workspace | { status: number; body: unknown }): A
     const method = init?.method ?? 'GET'
     calls.push({ method, url })
     if (url.startsWith('/api/workspace')) {
+      if (opciones.servidor && !('status' in first)) return json(200, comoServidor(first, url))
       last = workspaces.length > 1 ? (workspaces.shift() ?? last) : (workspaces[0] ?? last)
       if (last === 'pending') return new Promise<Response>(() => {})
       return json(last.status, last.body)

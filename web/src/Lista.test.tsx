@@ -3,11 +3,10 @@ import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 import type { Trabajo } from './lib/api'
 import { mockApi, mockEventSource } from './test/api-mock'
-import { enPR, idea, sinTraza, specSuelta, workspace } from './test/fixtures'
+import { enPR, grillVivo, idea, sinTraza, specSuelta, workspace } from './test/fixtures'
 
 const ideaA: Trabajo = { ...idea, id: 'o/a/issue/70', repo: 'o/a', titulo: 'Roadmap del orden de grills', ancla: { tipo: 'issue', ref: '#70' }, ultimaActividad: '2026-10-26T10:00:00Z' }
 const ideaB: Trabajo = { ...idea, id: 'o/a/issue/71', repo: 'o/a', titulo: 'Unificar el parser de glb', ancla: { tipo: 'issue', ref: '#71' }, ultimaActividad: '2026-10-25T10:00:00Z' }
-const grillVivo: Trabajo = { ...sinTraza, id: 'o/b/grill/2026-10-20-norte', titulo: 'Visor del flujo', ancla: { tipo: 'grill', ref: '2026-10-20-norte' }, sinHistoria: false }
 
 async function lista(trabajos: Trabajo[], path = '/') {
   window.history.replaceState(null, '', path)
@@ -50,8 +49,8 @@ describe('lista de celular por etapas', () => {
     expect(nombres(l)).toEqual(['Idea 1'])
   })
 
-  it('con «Todos», el grupo «Sin traza (N)» abierto también trae sus secciones por etapa', async () => {
-    const l = await lista([enPR, ideaA, sinTraza], '/?filtro=todos')
+  it('con la categoría Sin traza, el grupo «Sin traza (N)» abierto también trae sus secciones por etapa', async () => {
+    const l = await lista([enPR, ideaA, sinTraza], '/?mostrar=en-curso,idea,sin-traza')
     expect(nombres(l)).toEqual(['PR 1', 'Idea 1'])
     const grupo = within(l).getByRole('button', { name: 'Sin traza (1)' })
     fireEvent.click(grupo)

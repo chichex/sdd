@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Etapa, Trabajo } from './api'
-import { agrupar, armarVista, coincide, seccionarPorEtapa } from './filtrar'
+import type { Categoria, Etapa, Trabajo } from './api'
+import { agrupar, alternarCategoria, armarVista, coincide, seccionarPorEtapa } from './filtrar'
 
 function trabajo(id: string, repo: string, etapa: Etapa, ultimaActividad: string, over: Partial<Trabajo> = {}): Trabajo {
   return {
@@ -13,6 +13,7 @@ function trabajo(id: string, repo: string, etapa: Etapa, ultimaActividad: string
     ultimaActividad,
     terminado: false,
     sinHistoria: false,
+    categoria: 'en-curso',
     ramas: [],
     ...over,
   }
@@ -103,32 +104,58 @@ describe('coincide', () => {
 describe('armarVista', () => {
   const base = [
     trabajo('a-spec', 'o/a', 'spec', '2026-10-27T10:00:00Z', { titulo: 'Sombras' }),
-    trabajo('a-viejo', 'o/a', 'grill', '2026-09-01T10:00:00Z', { titulo: 'Grill viejo', sinHistoria: true }),
-    trabajo('b-idea', 'o/b', 'idea', '2026-10-26T10:00:00Z', { titulo: 'Idea' }),
+    trabajo('a-viejo', 'o/a', 'grill', '2026-09-01T10:00:00Z', { titulo: 'Grill viejo', sinHistoria: true, categoria: 'sin-traza' }),
+    trabajo('b-idea', 'o/b', 'idea', '2026-10-26T10:00:00Z', { titulo: 'Idea', categoria: 'idea' }),
   ]
   const sinFiltros = { etapas: [], q: '' }
 
-  it('con «todos» separa los sin traza al final, agrupados por repo', () => {
-    const v = armarVista(base, { filtro: 'todos', ...sinFiltros })
+  it('separa al final los de la categoría sin-traza, agrupados por repo, y deja las ideas en línea', () => {
+    const v = armarVista(base, sinFiltros)
     expect(v.grupos.map((g) => [g.repo, g.trabajos.map((t) => t.id)])).toEqual([['o/a', ['a-spec']], ['o/b', ['b-idea']]])
     expect(v.sinTraza.map((g) => [g.repo, g.trabajos.map((t) => t.id)])).toEqual([['o/a', ['a-viejo']]])
     expect(v.nSinTraza).toBe(1)
   })
 
-  it.each(['activos', 'con-traza'] as const)('con «%s» no hay grupo sin traza', (filtro) => {
-    const v = armarVista(base, { filtro, ...sinFiltros })
+  it('sin trabajos sin-traza en la respuesta no hay grupo', () => {
+    const v = armarVista(base.filter((t) => t.categoria !== 'sin-traza'), sinFiltros)
     expect(v.sinTraza).toEqual([])
     expect(v.nSinTraza).toBe(0)
   })
 
+  it('el grupo depende de la categoría, no del flag sinHistoria', () => {
+    const conFlag = [trabajo('x', 'o/a', 'spec', '2026-10-27T10:00:00Z', { sinHistoria: true, categoria: 'en-curso' })]
+    expect(armarVista(conFlag, sinFiltros).nSinTraza).toBe(0)
+    const sinFlag = [trabajo('y', 'o/a', 'spec', '2026-10-27T10:00:00Z', { sinHistoria: false, categoria: 'sin-traza' })]
+    expect(armarVista(sinFlag, sinFiltros).nSinTraza).toBe(1)
+  })
+
   it('etapa y búsqueda filtran antes de separar: N cuenta lo que queda', () => {
-    expect(armarVista(base, { filtro: 'todos', etapas: ['spec'], q: '' }).nSinTraza).toBe(0)
-    expect(armarVista(base, { filtro: 'todos', etapas: [], q: 'viejo' }).nSinTraza).toBe(1)
-    expect(armarVista(base, { filtro: 'todos', etapas: ['grill', 'idea'], q: '' }).visibles.map((t) => t.id)).toEqual(['a-viejo', 'b-idea'])
+    expect(armarVista(base, { etapas: ['spec'], q: '' }).nSinTraza).toBe(0)
+    expect(armarVista(base, { etapas: [], q: 'viejo' }).nSinTraza).toBe(1)
+    expect(armarVista(base, { etapas: ['grill', 'idea'], q: '' }).visibles.map((t) => t.id)).toEqual(['a-viejo', 'b-idea'])
   })
 
   it('omite los encabezados si la base trae trabajos de un solo repo', () => {
-    expect(armarVista(base, { filtro: 'todos', ...sinFiltros }).encabezados).toBe(true)
-    expect(armarVista(base.slice(0, 2), { filtro: 'todos', ...sinFiltros }).encabezados).toBe(false)
+    expect(armarVista(base, sinFiltros).encabezados).toBe(true)
+    expect(armarVista(base.slice(0, 2), sinFiltros).encabezados).toBe(false)
+  })
+})
+
+describe('alternarCategoria', () => {
+  const t = (mostrar: Categoria[], c: Categoria) => alternarCategoria(mostrar, c)
+
+  it('suma una categoría en el orden canónico', () => {
+    expect(t(['en-curso'], 'sin-traza')).toEqual(['en-curso', 'sin-traza'])
+    expect(t(['terminado'], 'en-curso')).toEqual(['en-curso', 'terminado'])
+    expect(t(['en-curso', 'terminado', 'sin-traza'], 'idea')).toEqual(['en-curso', 'idea', 'terminado', 'sin-traza'])
+  })
+
+  it('saca una categoría de la selección', () => {
+    expect(t(['en-curso', 'idea'], 'idea')).toEqual(['en-curso'])
+    expect(t(['en-curso', 'idea', 'terminado'], 'en-curso')).toEqual(['idea', 'terminado'])
+  })
+
+  it('tocar la última activa no la destilda', () => {
+    expect(t(['terminado'], 'terminado')).toEqual(['terminado'])
   })
 })

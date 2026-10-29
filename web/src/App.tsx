@@ -13,9 +13,12 @@ import { Sidebar } from '@/components/Sidebar'
 import { Detalle } from '@/components/detalle/Detalle'
 import { useHealth, useLocationPath, useMediaQuery, useNow, useRefresh, useTema } from '@/hooks/ui'
 import { useWorkspace } from '@/hooks/useWorkspace'
-import type { Etapa, Trabajo, Workspace } from '@/lib/api'
-import { alternarEtapa, armarVista, conteoPorEtapa } from '@/lib/filtrar'
+import type { Categoria, Etapa, Trabajo, Workspace } from '@/lib/api'
+import { alternarCategoria, alternarEtapa, armarVista, conteoPorEtapa } from '@/lib/filtrar'
 import { filtersQuery, navigate, readFilters, trabajoFromPath, trabajoPath, writeFilters, type Filters } from '@/lib/router'
+
+// Antes de la primera respuesta no hay conteos: las cuatro categorías en cero.
+const SIN_CATEGORIAS: Record<Categoria, number> = { 'en-curso': 0, idea: 0, terminado: 0, 'sin-traza': 0 }
 
 function conteos(ws: Workspace | null) {
   const counts = new Map<string, number>()
@@ -27,7 +30,7 @@ export default function App() {
   const { pathname, search } = useLocationPath()
   const filters = readFilters(search)
   const detalleId = trabajoFromPath(pathname)
-  const { data, error, reload } = useWorkspace(filters.filtro)
+  const { data, error, reload } = useWorkspace(filters.mostrar)
   const health = useHealth()
   const [tema, setTema] = useTema()
   const desktop = useMediaQuery('(min-width: 768px)')
@@ -44,11 +47,16 @@ export default function App() {
   const vista = armarVista(base, filters)
   const set = (patch: Partial<Filters>) => writeFilters({ ...filters, ...patch })
   const etapas = { etapas: filters.etapas, conteos: conteoPorEtapa(base), onEtapa: (e: Etapa) => set({ etapas: alternarEtapa(filters.etapas, e) }) }
+  const mostrar = {
+    mostrar: filters.mostrar,
+    categorias: data?.categorias ?? SIN_CATEGORIAS,
+    onMostrar: (c: Categoria) => set({ mostrar: alternarCategoria(filters.mostrar, c) }),
+  }
   const abrir = (t: Trabajo) => navigate(trabajoPath(t.id, filters))
   const refreshButton = (
     <Refresh fetchedAt={data?.github.fetchedAt ?? null} now={now} refreshing={refreshing} failed={failed} onRefresh={() => void refresh()} />
   )
-  const nav = { repos, total: data?.trabajos.length ?? 0, repo: filters.repo, filtro: filters.filtro, tema, refresh: refreshButton }
+  const nav = { repos, total: data?.trabajos.length ?? 0, repo: filters.repo, tema, refresh: refreshButton }
 
   let contenido: React.ReactNode
   if (!listo) contenido = <BoardSkeleton />
@@ -69,11 +77,11 @@ export default function App() {
     <TooltipProvider>
       <div className="flex min-h-dvh flex-col bg-bg text-fg">
         {desktop ? (
-          <NavegacionDesktop {...nav} onRepo={(repo) => set({ repo })} onFiltro={(filtro) => set({ filtro })} onTema={setTema} />
+          <NavegacionDesktop {...nav} onRepo={(repo) => set({ repo })} onTema={setTema} />
         ) : (
           <NavegacionCelular repo={filters.repo} onMenu={() => setMenu(true)} refresh={refreshButton} menuRef={menuRef} />
         )}
-        <BarraFiltros desktop={desktop} q={filters.q} onQ={(q) => set({ q })} {...etapas} />
+        <BarraFiltros desktop={desktop} q={filters.q} onQ={(q) => set({ q })} mostrar={mostrar} etapas={etapas} />
         {data && !data.github.ok && (
           <Banner tone="warning" onRetry={() => void refresh()}>
             Sin GitHub: mostrando solo lo local
@@ -104,9 +112,9 @@ export default function App() {
             version={health?.version ?? null}
             root={health?.root ?? data?.root ?? null}
             onRepo={(repo) => set({ repo })}
-            onFiltro={(filtro) => set({ filtro })}
             onTema={setTema}
-            {...etapas}
+            mostrar={mostrar}
+            etapas={etapas}
           />
         )}
         <Toaster position={desktop ? 'bottom-right' : 'bottom-center'} theme={tema === 'sistema' ? 'system' : tema === 'oscuro' ? 'dark' : 'light'} />

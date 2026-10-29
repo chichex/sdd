@@ -2,31 +2,20 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { mockApi, mockEventSource } from './test/api-mock'
-import { detalleStack, enPR, idea, sinTraza, stack, workspace } from './test/fixtures'
+import { detalleStack, enPR, grillVivo, idea, stack, workspace } from './test/fixtures'
 
 describe('filtros en la URL', () => {
-  it('lee ?repo y ?filtro al cargar', async () => {
-    window.history.replaceState(null, '', '/?repo=o%2Fb&filtro=todos')
+  it('lee ?repo y ?mostrar al cargar y pide esa lista al server', async () => {
+    window.history.replaceState(null, '', '/?repo=o%2Fb&mostrar=idea,sin-traza')
     const api = mockApi(workspace())
     mockEventSource()
     render(<App />)
     const board = await screen.findByRole('region', { name: 'Tablero' })
-    expect(api.calls.some((c) => c.url === '/api/workspace?filtro=todos')).toBe(true)
+    expect(api.calls.some((c) => c.url === '/api/workspace?mostrar=idea,sin-traza')).toBe(true)
     expect(within(board).getAllByText('Idea sin artefactos').length).toBeGreaterThan(0)
     expect(within(board).queryByText('Sombras suaves')).toBeNull()
-    expect(screen.getByRole('radio', { name: 'Todos', checked: true })).toBeTruthy()
-  })
-
-  it('cambiar el filtro escribe la URL con replaceState y refetchea', async () => {
-    const api = mockApi(workspace())
-    mockEventSource()
-    render(<App />)
-    await screen.findByRole('region', { name: 'Tablero' })
-    const before = window.history.length
-    fireEvent.click(screen.getByRole('radio', { name: 'Todos' }))
-    expect(window.location.search).toBe('?filtro=todos')
-    expect(window.history.length).toBe(before)
-    await waitFor(() => expect(api.calls.some((c) => c.url === '/api/workspace?filtro=todos')).toBe(true))
+    expect(screen.getByRole('button', { name: /^Ideas/ }).getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByRole('button', { name: /^En curso/ }).getAttribute('aria-pressed')).toBe('false')
   })
 
   it('el Select de repo lista los repos del snapshot con su conteo y escribe ?repo', async () => {
@@ -44,44 +33,10 @@ describe('filtros en la URL', () => {
   })
 })
 
-describe('filtro Mostrar con traza', () => {
-  it('ofrece Activos, Con traza y Todos en ese orden', async () => {
-    mockApi(workspace())
-    mockEventSource()
-    render(<App />)
-    const mostrar = await screen.findByRole('radiogroup', { name: 'Mostrar' })
-    expect(within(mostrar).getAllByRole('radio').map((r) => r.textContent)).toEqual(['Activos', 'Con traza', 'Todos'])
-  })
-
-  it('elegir Con traza escribe ?filtro=con-traza y pide ese filtro al server', async () => {
-    const api = mockApi(workspace())
-    mockEventSource()
-    render(<App />)
-    await screen.findByRole('region', { name: 'Tablero' })
-    fireEvent.click(screen.getByRole('radio', { name: 'Con traza' }))
-    expect(window.location.search).toBe('?filtro=con-traza')
-    await waitFor(() => expect(api.calls.some((c) => c.url === '/api/workspace?filtro=con-traza')).toBe(true))
-  })
-
-  it('lee ?filtro=con-traza al cargar y en celular el Sidebar lo ofrece como fila', async () => {
-    window.history.replaceState(null, '', '/?filtro=con-traza')
-    vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
-    const api = mockApi(workspace())
-    mockEventSource()
-    render(<App />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Menú' }))
-    const dialog = await screen.findByRole('dialog', { name: 'sdd' })
-    expect(api.calls.some((c) => c.url === '/api/workspace?filtro=con-traza')).toBe(true)
-    const filas = ['Activos', 'Con traza', 'Todos'].map((name) => within(dialog).getByRole('button', { name }))
-    expect(filas[0]?.compareDocumentPosition(filas[1] as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(filas[1]?.compareDocumentPosition(filas[2] as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
-  })
-})
-
 const celular = () =>
   vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
 
-async function tablero(path = '/', trabajos = [stack, enPR, idea, sinTraza]) {
+async function tablero(path = '/', trabajos = [stack, enPR, idea, grillVivo]) {
   window.history.replaceState(null, '', path)
   const api = mockApi(workspace({ trabajos }))
   mockEventSource()
@@ -106,7 +61,7 @@ describe('chips de etapa', () => {
     expect(window.location.search).toBe('?etapa=grill')
     expect(window.history.length).toBe(before)
     expect(screen.getByRole('button', { name: 'Grill 1' }).getAttribute('aria-pressed')).toBe('true')
-    expect(tiras(board)).toEqual(['Grill viejo'])
+    expect(tiras(board)).toEqual(['Visor del flujo'])
   })
 
   it('multi-selección en el orden de las etapas, con conteos que no cambian; sin selección vuelve todo', async () => {
@@ -130,7 +85,7 @@ describe('chips de etapa', () => {
 
   it('en celular viven en la sección Etapas del Sidebar, que no se cierra al tocar una', async () => {
     celular()
-    mockApi(workspace({ trabajos: [stack, enPR, idea, sinTraza] }))
+    mockApi(workspace({ trabajos: [stack, enPR, idea, grillVivo] }))
     mockEventSource()
     render(<App />)
     await screen.findByRole('list', { name: 'Trabajos' })
@@ -175,15 +130,15 @@ describe('búsqueda', () => {
 })
 
 describe('vacío por filtros', () => {
-  it('si etapa y búsqueda no dejan nada, muestra el EmptyState y Limpiar filtros conserva repo y filtro', async () => {
-    window.history.replaceState(null, '', '/?repo=o%2Fa&filtro=todos&etapa=publicado&q=zzz')
-    mockApi(workspace({ trabajos: [stack, enPR, idea, sinTraza] }))
+  it('si etapa y búsqueda no dejan nada, muestra el EmptyState y Limpiar filtros conserva repo y mostrar', async () => {
+    window.history.replaceState(null, '', '/?repo=o%2Fa&mostrar=en-curso,terminado&etapa=publicado&q=zzz')
+    mockApi(workspace({ trabajos: [stack, enPR, idea, grillVivo] }))
     mockEventSource()
     render(<App />)
     expect(await screen.findByText('Ningún trabajo coincide con los filtros')).toBeTruthy()
     expect(screen.queryByRole('region', { name: 'Tablero' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Limpiar filtros' }))
-    expect(window.location.search).toBe('?repo=o%2Fa&filtro=todos')
+    expect(window.location.search).toBe('?repo=o%2Fa&mostrar=en-curso,terminado')
     const board = await screen.findByRole('region', { name: 'Tablero' })
     expect(tiras(board)).toEqual(['Sombras suaves', 'Exportar tablero'])
   })
@@ -196,7 +151,7 @@ describe('vacío por filtros', () => {
 })
 
 describe('los cuatro filtros en la URL', () => {
-  const query = '?repo=o%2Fa&filtro=todos&etapa=mergeado&q=sombras'
+  const query = '?repo=o%2Fa&mostrar=en-curso,terminado&etapa=mergeado&q=sombras'
 
   it('se leen al cargar, se conservan al abrir y cerrar el detalle y sobreviven a una recarga', async () => {
     const { api, board } = await tablero(`/${query}`)
@@ -219,12 +174,12 @@ describe('los cuatro filtros en la URL', () => {
 
   it('el skeleton y el stream no los pisan', async () => {
     window.history.replaceState(null, '', `/${query}`)
-    const api = mockApi(workspace({ scanning: true, trabajos: [stack, enPR, idea, sinTraza] }))
+    const api = mockApi(workspace({ scanning: true, trabajos: [stack, enPR, idea, grillVivo] }))
     const es = mockEventSource()
     render(<App />)
     await screen.findByRole('status', { name: 'Cargando el tablero' })
     expect(window.location.search).toBe(query)
-    api.queueWorkspace(workspace({ trabajos: [stack, enPR, idea, sinTraza] }))
+    api.queueWorkspace(workspace({ trabajos: [stack, enPR, idea, grillVivo] }))
     act(() => es.instances[0]?.emit('snapshot', {}))
     const board = await screen.findByRole('region', { name: 'Tablero' })
     expect(window.location.search).toBe(query)

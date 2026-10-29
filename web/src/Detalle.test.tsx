@@ -13,9 +13,12 @@ function abrir(path: string) {
   return api
 }
 
+const celular = () =>
+  vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
+
 describe('detalle de un trabajo', () => {
   it('la ruta /trabajos/<id> abre el detalle sobre el board con título, chips y grafo', async () => {
-    const api = abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}?filtro=todos`)
+    const api = abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}?mostrar=en-curso,terminado`)
     const dialog = await screen.findByRole('dialog', { name: 'Sombras suaves' })
     expect(api.calls.some((c) => c.url === `/api/trabajos/${encodeURIComponent(detalleStack.id)}`)).toBe(true)
     expect(within(dialog).getByText('o/a')).toBeTruthy()
@@ -38,11 +41,11 @@ describe('detalle de un trabajo', () => {
   })
 
   it('Esc cierra y vuelve a / conservando los filtros', async () => {
-    abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}?repo=o%2Fa&filtro=todos`)
+    abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}?repo=o%2Fa&mostrar=en-curso,terminado`)
     const dialog = await screen.findByRole('dialog', { name: 'Sombras suaves' })
     fireEvent.keyDown(dialog, { key: 'Escape' })
     await waitFor(() => expect(window.location.pathname).toBe('/'))
-    expect(window.location.search).toBe('?repo=o%2Fa&filtro=todos')
+    expect(window.location.search).toBe('?repo=o%2Fa&mostrar=en-curso,terminado')
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
@@ -52,14 +55,14 @@ describe('detalle de un trabajo', () => {
   })
 
   it('en celular el detalle abre como Sheet desde abajo', async () => {
-    vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
+    celular()
     abrir(`/trabajos/${encodeURIComponent(detalleStack.id)}`)
     const sheet = await screen.findByRole('dialog', { name: 'Sombras suaves' })
     expect(sheet.dataset.slot).toBe('sheet-content')
   })
 
   it('tocar una fila de la lista abre el detalle', async () => {
-    vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
+    celular()
     abrir('/')
     const lista = await screen.findByRole('list', { name: 'Trabajos' })
     fireEvent.click(within(lista).getByRole('button', { name: /Sombras suaves/ }))

@@ -1,9 +1,26 @@
 // Contrato JSON de la API del visor (/api/*) y su validación en la frontera:
 // lo que llega por red se comprueba antes de usarlo.
-import type { Filtro } from './router'
 
 export type Etapa = 'idea' | 'grill' | 'spec' | 'run' | 'pr' | 'mergeado' | 'publicado'
 export const ETAPAS: readonly Etapa[] = ['idea', 'grill', 'spec', 'run', 'pr', 'mergeado', 'publicado']
+
+/** Categoría de un trabajo: exactamente una; el control «Mostrar» elige cuáles se piden. */
+export type Categoria = 'en-curso' | 'idea' | 'terminado' | 'sin-traza'
+/** Orden canónico de las categorías: el de las chips, el del Sidebar y el de la URL. */
+export const CATEGORIAS: readonly Categoria[] = ['en-curso', 'idea', 'terminado', 'sin-traza']
+/** Lo que se muestra sin elegir: también es lo que el server devuelve sin ?mostrar=. */
+export const MOSTRAR_DEFAULT: readonly Categoria[] = ['en-curso', 'idea']
+
+/** Las categorías conocidas de la lista, en el orden canónico y sin repetidos. */
+export function categoriasEnOrden(ids: readonly string[]): Categoria[] {
+  return CATEGORIAS.filter((c) => ids.includes(c))
+}
+
+/** true si la selección es el default, sin importar el orden. */
+export function esMostrarDefault(mostrar: readonly Categoria[]): boolean {
+  const orden = categoriasEnOrden(mostrar)
+  return orden.length === MOSTRAR_DEFAULT.length && orden.every((c, i) => c === MOSTRAR_DEFAULT[i])
+}
 
 export interface Refs {
   issue: string | null
@@ -38,6 +55,7 @@ export interface Trabajo {
   ultimaActividad: string
   terminado: boolean
   sinHistoria: boolean
+  categoria: Categoria
   ramas: Rama[]
 }
 export interface GitHubEstado {
@@ -62,6 +80,8 @@ export interface Workspace {
   github: GitHubEstado
   repos: Repo[]
   trabajos: Trabajo[]
+  /** Trabajos por categoría tras aplicar el repo y antes de «Mostrar»; siempre las cuatro. */
+  categorias: Record<Categoria, number>
 }
 
 export interface Barra {
@@ -117,6 +137,22 @@ function etapa(v: unknown, where: string): Etapa {
   return s as Etapa
 }
 
+function categoria(v: unknown, where: string): Categoria {
+  const s = str(v, where)
+  if (!(CATEGORIAS as readonly string[]).includes(s)) throw new ApiError(`${where}: categoría desconocida ${s}`)
+  return s as Categoria
+}
+
+function parseCategorias(v: unknown): Record<Categoria, number> {
+  const o = obj(v, 'categorias')
+  const conteo = (c: Categoria): number => {
+    const n = o[c]
+    if (typeof n !== 'number' || !Number.isInteger(n) || n < 0) throw new ApiError(`categorias.${c}: se esperaba un conteo`)
+    return n
+  }
+  return { 'en-curso': conteo('en-curso'), idea: conteo('idea'), terminado: conteo('terminado'), 'sin-traza': conteo('sin-traza') }
+}
+
 function parseGitHub(v: unknown): GitHubEstado {
   const o = obj(v, 'github')
   return { ok: bool(o.ok, 'github.ok'), reason: optStr(o.reason, 'github.reason'), fetchedAt: optStr(o.fetchedAt, 'github.fetchedAt') }
@@ -154,6 +190,7 @@ export function parseTrabajo(v: unknown): Trabajo {
     ultimaActividad: str(o.ultimaActividad, 'trabajo.ultimaActividad'),
     terminado: bool(o.terminado, 'trabajo.terminado'),
     sinHistoria: bool(o.sinHistoria, 'trabajo.sinHistoria'),
+    categoria: categoria(o.categoria, 'trabajo.categoria'),
     ramas: arr(o.ramas, 'trabajo.ramas', (r) => {
       const ro = obj(r, 'rama')
       return { id: str(ro.id, 'rama.id'), estado: str(ro.estado, 'rama.estado'), nodos: arr(ro.nodos, 'rama.nodos', parseNodo) }
@@ -182,6 +219,7 @@ export function parseWorkspace(v: unknown): Workspace {
       }
     }),
     trabajos: arr(o.trabajos, 'trabajos', parseTrabajo),
+    categorias: parseCategorias(o.categorias),
   }
 }
 
@@ -191,8 +229,10 @@ async function getJSON(url: string, init?: RequestInit): Promise<unknown> {
   return res.json() as Promise<unknown>
 }
 
-export async function fetchWorkspace(filtro: Filtro): Promise<Workspace> {
-  return parseWorkspace(await getJSON(`/api/workspace?filtro=${filtro}`))
+/** Pide los trabajos de las categorías elegidas; con el default no manda ?mostrar=. */
+export async function fetchWorkspace(mostrar: readonly Categoria[]): Promise<Workspace> {
+  const query = esMostrarDefault(mostrar) ? '' : `?mostrar=${categoriasEnOrden(mostrar).join(',')}`
+  return parseWorkspace(await getJSON(`/api/workspace${query}`))
 }
 
 export async function postRefresh(): Promise<string | null> {

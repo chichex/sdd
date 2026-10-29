@@ -1,6 +1,6 @@
 // Filtrado y agrupado del lado del cliente sobre la respuesta de
 // /api/workspace: búsqueda por texto, etapas elegidas y grupos por repo.
-import { ETAPAS, type Etapa, type Trabajo } from './api'
+import { categoriasEnOrden, CATEGORIAS, ETAPAS, type Categoria, type Etapa, type Trabajo } from './api'
 import type { Filters } from './router'
 
 export interface Grupo {
@@ -66,18 +66,18 @@ export interface Vista {
   visibles: Trabajo[]
   /** Los grupos por repo que se dibujan abiertos. */
   grupos: Grupo[]
-  /** Solo con «todos»: los sin traza, agrupados igual, para el grupo colapsado. */
+  /** Los de la categoría sin-traza, agrupados igual, para el grupo colapsado. */
   sinTraza: Grupo[]
   nSinTraza: number
   /** false si la respuesta trae trabajos de un solo repo: no hacen falta encabezados. */
   encabezados: boolean
 }
 
-/** Aplica etapa y búsqueda sobre la respuesta y, con «todos», aparta los sin traza. */
-export function armarVista(base: readonly Trabajo[], f: Pick<Filters, 'filtro' | 'etapas' | 'q'>): Vista {
+/** Aplica etapa y búsqueda sobre la respuesta y aparta los de la categoría sin-traza, que el server solo manda si se eligió. */
+export function armarVista(base: readonly Trabajo[], f: Pick<Filters, 'etapas' | 'q'>): Vista {
   const visibles = base.filter((t) => (f.etapas.length === 0 || f.etapas.includes(t.etapa)) && coincide(f.q, t))
-  const sinTraza = f.filtro === 'todos' ? visibles.filter((t) => t.sinHistoria) : []
-  const abiertos = f.filtro === 'todos' ? visibles.filter((t) => !t.sinHistoria) : visibles
+  const sinTraza = visibles.filter((t) => t.categoria === 'sin-traza')
+  const abiertos = visibles.filter((t) => t.categoria !== 'sin-traza')
   return {
     visibles,
     grupos: agrupar(abiertos),
@@ -95,4 +95,10 @@ export function conteoPorEtapa(trabajos: readonly Trabajo[]): Map<Etapa, number>
 /** Suma o saca una etapa de la selección, que queda en el orden del flujo. */
 export function alternarEtapa(etapas: readonly Etapa[], etapa: Etapa): Etapa[] {
   return ETAPAS.filter((e) => (e === etapa ? !etapas.includes(e) : etapas.includes(e)))
+}
+
+/** Suma o saca una categoría de la selección, que queda en el orden canónico y nunca vacía. */
+export function alternarCategoria(mostrar: readonly Categoria[], categoria: Categoria): Categoria[] {
+  const siguiente = CATEGORIAS.filter((c) => (c === categoria ? !mostrar.includes(c) : mostrar.includes(c)))
+  return siguiente.length > 0 ? siguiente : categoriasEnOrden(mostrar)
 }

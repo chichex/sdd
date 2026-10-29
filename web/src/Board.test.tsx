@@ -59,6 +59,7 @@ describe('marcas de traza y ancla en el nodo', () => {
 
   it('un trabajo sin traza lleva el badge «sin traza» en la fila del sub-estado, después de él', async () => {
     const b = await boardCon({ trabajos: [stack, sinTraza] })
+    fireEvent.click(within(b).getByRole('button', { name: 'Sin traza (1)' })) // los sin-traza viven en su grupo colapsado
     const nodo = within(within(b).getByRole('group', { name: 'Grill viejo' })).getByRole('button', { name: /Grill viejo · grill/ })
     const badge = within(nodo).getByText('sin traza')
     const fila = badge.parentElement as HTMLElement
@@ -72,6 +73,7 @@ describe('marcas de traza y ancla en el nodo', () => {
 
   it('el chip de referencia del nodo lleva el ícono de ancla por tipo, con aria-label', async () => {
     const b = await boardCon({ trabajos: [stack, sinTraza, specSuelta] })
+    fireEvent.click(within(b).getByRole('button', { name: 'Sin traza (1)' }))
     expect(within(within(b).getByRole('group', { name: 'Sombras suaves' })).getAllByLabelText('ancla: issue').length).toBeGreaterThan(0)
     expect(within(within(b).getByRole('group', { name: 'Grill viejo' })).getByLabelText('ancla: grill')).toBeTruthy()
     expect(within(within(b).getByRole('group', { name: 'Spec suelta' })).getByLabelText('ancla: spec')).toBeTruthy()
@@ -108,8 +110,8 @@ describe('grupos por repo y grupo sin traza en el board', () => {
     expect(within(b).queryAllByRole('heading', { level: 3 })).toHaveLength(0)
   })
 
-  it('con «todos» los sin traza van al final en «Sin traza (N)», cerrado, y al abrirlo aparecen por repo', async () => {
-    const b = await boardEn('/?filtro=todos')
+  it('con la categoría Sin traza los sin traza van al final en «Sin traza (N)», cerrado, y al abrirlo aparecen por repo', async () => {
+    const b = await boardEn('/?mostrar=en-curso,idea,sin-traza')
     const grupo = within(b).getByRole('button', { name: 'Sin traza (1)' })
     expect(grupo.getAttribute('aria-expanded')).toBe('false')
     expect(within(b).queryByRole('group', { name: 'Grill viejo' })).toBeNull()
@@ -123,20 +125,20 @@ describe('grupos por repo y grupo sin traza en el board', () => {
   })
 
   it('los carriles cuentan los nodos de todo lo visible, incluido el grupo sin traza', async () => {
-    const b = await boardEn('/?filtro=todos')
+    const b = await boardEn('/?mostrar=en-curso,idea,sin-traza')
     expect(within(b).getByRole('heading', { name: 'Grill 2' })).toBeTruthy()
   })
 
-  it.each(['/', '/?filtro=con-traza'])('en %s no existe el grupo sin traza', async (path) => {
-    const b = await boardEn(path)
+  it('sin trabajos de la categoría sin-traza en la respuesta no existe el grupo', async () => {
+    const b = await boardEn('/', [stack, enPR, idea])
     expect(within(b).queryByRole('button', { name: /^Sin traza/ })).toBeNull()
   })
 
   it('N cuenta tras etapa y búsqueda, y con N = 0 el grupo no se dibuja', async () => {
-    const b = await boardEn('/?filtro=todos&q=viejo')
+    const b = await boardEn('/?mostrar=sin-traza&q=viejo')
     expect(within(b).getByRole('button', { name: 'Sin traza (1)' })).toBeTruthy()
     cleanup()
-    const b2 = await boardEn('/?filtro=todos&etapa=idea')
+    const b2 = await boardEn('/?mostrar=en-curso,idea,sin-traza&etapa=idea')
     expect(within(b2).queryByRole('button', { name: /^Sin traza/ })).toBeNull()
   })
 })

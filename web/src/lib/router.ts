@@ -1,22 +1,16 @@
 // Ruteo mínimo del visor (sin librería): la ruta sale de location y los
-// filtros viven en la query (?repo=&filtro=&etapa=&q=) para que una recarga
+// filtros viven en la query (?repo=&mostrar=&etapa=&q=) para que una recarga
 // o un link compartido los conserven.
-import { ETAPAS, type Etapa } from './api'
-
-export type Filtro = 'activos' | 'con-traza' | 'todos'
-const FILTROS: readonly Filtro[] = ['activos', 'con-traza', 'todos']
+import { categoriasEnOrden, esMostrarDefault, ETAPAS, MOSTRAR_DEFAULT, type Categoria, type Etapa } from './api'
 
 export interface Filters {
   repo: string | null
-  filtro: Filtro
+  /** Categorías elegidas, sin repetidos y en el orden canónico; nunca vacío (default en-curso e ideas). */
+  mostrar: Categoria[]
   /** Etapas elegidas, sin repetidos y en el orden del flujo; vacío = todas. */
   etapas: Etapa[]
   /** Búsqueda tal como se escribió; vacío = sin búsqueda. */
   q: string
-}
-
-function esFiltro(v: string | null): v is Filtro {
-  return FILTROS.some((f) => f === v)
 }
 
 /** Etapas conocidas de la lista, en el orden del flujo y sin repetidos. */
@@ -26,10 +20,10 @@ function etapasEnOrden(ids: readonly string[]): Etapa[] {
 
 export function readFilters(search: string): Filters {
   const params = new URLSearchParams(search)
-  const filtro = params.get('filtro')
+  const mostrar = categoriasEnOrden((params.get('mostrar') ?? '').split(','))
   return {
     repo: params.get('repo') || null,
-    filtro: esFiltro(filtro) ? filtro : 'activos',
+    mostrar: mostrar.length > 0 ? mostrar : [...MOSTRAR_DEFAULT],
     etapas: etapasEnOrden((params.get('etapa') ?? '').split(',')),
     q: params.get('q') ?? '',
   }
@@ -38,7 +32,7 @@ export function readFilters(search: string): Filters {
 export function filtersQuery(f: Filters): string {
   const params = new URLSearchParams()
   if (f.repo) params.set('repo', f.repo)
-  if (f.filtro !== 'activos') params.set('filtro', f.filtro)
+  if (f.mostrar.length > 0 && !esMostrarDefault(f.mostrar)) params.set('mostrar', categoriasEnOrden(f.mostrar).join(','))
   if (f.etapas.length > 0) params.set('etapa', etapasEnOrden(f.etapas).join(','))
   if (f.q) params.set('q', f.q)
   // La coma es válida en una query: se deja literal para que ?etapa=grill,spec se lea.

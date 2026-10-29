@@ -1,13 +1,15 @@
-// Opciones de los controles segmentados de la cabecera y del Sidebar.
+// Opciones de los controles de la cabecera, la Barra de filtros y el Sidebar.
 import { Monitor, Moon, Sun } from 'lucide-react'
-import type { Filtro } from '@/lib/router'
+import type { Categoria } from '@/lib/api'
 import type { Tema } from '@/lib/theme'
 import type { SegmentedOption } from './Segmented'
 
-export const FILTROS: ReadonlyArray<SegmentedOption<Filtro>> = [
-  { value: 'activos', label: 'Activos' },
-  { value: 'con-traza', label: 'Con traza' },
-  { value: 'todos', label: 'Todos' },
+/** Las cuatro categorías del control «Mostrar», en el orden en que se dibujan. */
+export const CATEGORIA_INFO: ReadonlyArray<{ id: Categoria; nombre: string }> = [
+  { id: 'en-curso', nombre: 'En curso' },
+  { id: 'idea', nombre: 'Ideas' },
+  { id: 'terminado', nombre: 'Terminados' },
+  { id: 'sin-traza', nombre: 'Sin traza' },
 ]
 
 export const TEMAS: ReadonlyArray<SegmentedOption<Tema>> = [

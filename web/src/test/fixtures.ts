@@ -1,6 +1,6 @@
 // Datos de prueba con la forma de /api/workspace. Las referencias usan números
 // de dos cifras: el gate de hex de CA-26 contaría «#» seguido de tres.
-import type { Detalle, Nodo, Trabajo, Workspace } from '@/lib/api'
+import type { Categoria, Detalle, Nodo, Trabajo, Workspace } from '@/lib/api'
 
 const refs = { issue: null, grill: null, spec: null, pr: null }
 
@@ -18,6 +18,7 @@ export const stack: Trabajo = {
   ultimaActividad: '2026-10-27T11:00:00Z',
   terminado: false,
   sinHistoria: false,
+  categoria: 'en-curso',
   ramas: [
     {
       id: 'principal',
@@ -44,6 +45,7 @@ export const enPR: Trabajo = {
   ultimaActividad: '2026-10-27T09:00:00Z',
   terminado: false,
   sinHistoria: false,
+  categoria: 'en-curso',
   ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('spec', 'aprobada'), nodo('pr', 'checks rojos', { refs: { ...refs, pr: 31 }, capa: '1/1' })] }],
 }
 
@@ -57,6 +59,7 @@ export const idea: Trabajo = {
   ultimaActividad: '2026-10-26T08:00:00Z',
   terminado: false,
   sinHistoria: false,
+  categoria: 'idea',
   ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('idea', 'abierto', { stale: true })] }],
 }
 
@@ -71,7 +74,32 @@ export const sinTraza: Trabajo = {
   ultimaActividad: '2026-09-01T10:00:00Z',
   terminado: false,
   sinHistoria: true,
+  categoria: 'sin-traza',
   ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('grill', 'pausado', { refs: { ...refs, grill: '2026-09-01-viejo' }, ts: '2026-09-01T10:00:00Z' })] }],
+}
+
+// Grill con traza en events.jsonl, todavía abierto: categoría en-curso.
+export const grillVivo: Trabajo = { ...sinTraza, id: 'o/b/grill/2026-10-20-norte', titulo: 'Visor del flujo', ancla: { tipo: 'grill', ref: '2026-10-20-norte' }, sinHistoria: false, categoria: 'en-curso' }
+
+// Mergeado con su issue cerrado: categoría terminado.
+export const cerrado: Trabajo = {
+  id: 'o/a/issue/40',
+  repo: 'o/a',
+  titulo: 'Modo oscuro',
+  ancla: { tipo: 'issue', ref: '#40' },
+  etapa: 'mergeado',
+  subEstado: '1/1',
+  ultimaActividad: '2026-10-20T10:00:00Z',
+  terminado: true,
+  sinHistoria: false,
+  categoria: 'terminado',
+  ramas: [
+    {
+      id: 'principal',
+      estado: 'viva',
+      nodos: [nodo('spec', 'implementada'), nodo('pr', 'mergeado', { refs: { ...refs, pr: 12 }, capa: '1/1' }), nodo('mergeado', 'mergeado', { refs: { ...refs, pr: 12 }, capa: '1/1' })],
+    },
+  ],
 }
 
 export const specSuelta: Trabajo = {
@@ -84,6 +112,7 @@ export const specSuelta: Trabajo = {
   ultimaActividad: '2026-10-25T10:00:00Z',
   terminado: false,
   sinHistoria: false,
+  categoria: 'en-curso',
   ramas: [{ id: 'principal', estado: 'viva', nodos: [nodo('spec', 'aprobada', { refs: { ...refs, spec: '.sdd/specs/suelta.md' } })] }],
 }
 
@@ -93,14 +122,22 @@ function repo(id: string) {
   return { id, nombre: id.split('/')[1] ?? id, rutas: [`/ws/${id}`], sinGit: false, remote: `https://github.com/${id}.git`, lineasInvalidas: 0, errores: [], github }
 }
 
+/** Los conteos que el server manda: trabajos por categoría, siempre las cuatro claves. */
+export function contarCategorias(trabajos: readonly Trabajo[]): Record<Categoria, number> {
+  const n = (c: Categoria) => trabajos.filter((t) => t.categoria === c).length
+  return { 'en-curso': n('en-curso'), idea: n('idea'), terminado: n('terminado'), 'sin-traza': n('sin-traza') }
+}
+
 export function workspace(over: Partial<Workspace> = {}): Workspace {
+  const trabajos = over.trabajos ?? [stack, enPR, idea]
   return {
     root: '/ws',
     scannedAt: '2026-10-27T11:59:00.000Z',
     scanning: false,
     github,
     repos: [repo('o/a'), repo('o/b')],
-    trabajos: [stack, enPR, idea],
+    trabajos,
+    categorias: contarCategorias(trabajos),
     ...over,
   }
 }

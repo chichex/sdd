@@ -1,12 +1,11 @@
 import { Check } from 'lucide-react'
 import { cn } from 'cn'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import type { Filtro } from '@/lib/router'
 import type { Tema } from '@/lib/theme'
-import type { EtapasProps } from './BarraFiltros'
+import type { EtapasProps, MostrarProps } from './BarraFiltros'
 import { ETAPA_INFO } from './etapas'
 import { EtapaDot } from './marcas'
-import { FILTROS, TEMAS } from './opciones'
+import { CATEGORIA_INFO, TEMAS } from './opciones'
 import type { RepoCount } from './RepoSelect'
 import { Segmented } from './Segmented'
 
@@ -34,22 +33,22 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
   )
 }
 
-/** Menú lateral de celular: repo, filtro, etapas y tema; repo y filtro lo cierran, las etapas no. */
-export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, filtro, tema, version, root, onRepo, onFiltro, onTema, etapas, conteos, onEtapa }: {
+/** Menú lateral de celular: repo, categorías, etapas y tema; elegir un repo lo cierra, tocar una categoría o una etapa no. */
+export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, tema, version, root, onRepo, onTema, mostrar, etapas }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   returnFocus: React.RefObject<HTMLButtonElement | null>
   repos: RepoCount[]
   total: number
   repo: string | null
-  filtro: Filtro
   tema: Tema
   version: string | null
   root: string | null
   onRepo: (repo: string | null) => void
-  onFiltro: (f: Filtro) => void
   onTema: (t: Tema) => void
-} & EtapasProps) {
+  mostrar: MostrarProps
+  etapas: EtapasProps
+}) {
   const elegir = <T,>(fn: (v: T) => void) => (v: T) => {
     fn(v)
     onOpenChange(false)
@@ -65,7 +64,7 @@ export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, f
         className="w-[280px] max-w-[85%] gap-2 overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:max-w-[280px]">
         <SheetHeader className="px-4 py-3">
           <SheetTitle>sdd</SheetTitle>
-          <SheetDescription className="sr-only">Repo, filtro, etapas y tema del tablero</SheetDescription>
+          <SheetDescription className="sr-only">Repo, categorías, etapas y tema del tablero</SheetDescription>
         </SheetHeader>
         <Seccion titulo="Repo">
           <Fila activa={repo === null} onClick={() => elegir(onRepo)(null)}>
@@ -78,17 +77,17 @@ export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, f
           ))}
         </Seccion>
         <Seccion titulo="Mostrar">
-          {FILTROS.map((f) => (
-            <Fila key={f.value} activa={filtro === f.value} onClick={() => elegir(onFiltro)(f.value)}>
-              {f.label}
+          {CATEGORIA_INFO.map((c) => (
+            <Fila key={c.id} activa={mostrar.mostrar.includes(c.id)} toggle onClick={() => mostrar.onMostrar(c.id)}>
+              <span className="flex-1 truncate">{c.nombre}</span> <span className="font-mono text-xs text-fg-muted">{mostrar.categorias[c.id]}</span>
             </Fila>
           ))}
         </Seccion>
         <Seccion titulo="Etapas">
           {ETAPA_INFO.map((e) => (
-            <Fila key={e.id} activa={etapas.includes(e.id)} toggle onClick={() => onEtapa(e.id)}>
+            <Fila key={e.id} activa={etapas.etapas.includes(e.id)} toggle onClick={() => etapas.onEtapa(e.id)}>
               <EtapaDot etapa={e.id} />
-              <span className="flex-1 truncate">{e.nombre}</span> <span className="font-mono text-xs text-fg-muted">{conteos.get(e.id) ?? 0}</span>
+              <span className="flex-1 truncate">{e.nombre}</span> <span className="font-mono text-xs text-fg-muted">{etapas.conteos.get(e.id) ?? 0}</span>
             </Fila>
           ))}
         </Seccion>

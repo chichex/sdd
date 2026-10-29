@@ -41,7 +41,7 @@ function Grupos({ grupos, encabezados, now, onOpen }: GruposProps) {
 
 /**
  * Board de desktop: siete carriles fijos y una tira por trabajo, agrupadas por
- * repo; con «todos», los sin traza al final en un grupo colapsado. Los
+ * repo; los de la categoría sin traza, al final en un grupo colapsado. Los
  * carriles cuentan los nodos de todo lo visible. El scroll horizontal vive solo acá.
  */
 export function Board({ vista, now, onOpen }: { vista: Vista; now: Date; onOpen: (t: Trabajo) => void }) {

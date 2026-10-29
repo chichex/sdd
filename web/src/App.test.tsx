@@ -122,6 +122,7 @@ describe('marcas de traza y ancla en la lista y el detalle', () => {
     mockEventSource()
     render(<App />)
     const lista = await screen.findByRole('list', { name: 'Trabajos' })
+    fireEvent.click(within(lista).getByRole('button', { name: 'Sin traza (1)' })) // los sin-traza viven en su grupo colapsado
     const filaSin = within(lista).getByRole('button', { name: /Grill viejo/ })
     expect(within(filaSin).getByText('sin traza')).toBeTruthy()
     expect(within(filaSin).getByText('grill')).toBeTruthy()
@@ -158,7 +159,7 @@ describe('marcas de traza y ancla en la lista y el detalle', () => {
 
 describe('grupos en la lista de celular', () => {
   it('parte la lista por repo con encabezados h3 y deja los sin traza en «Sin traza (N)» al final', async () => {
-    window.history.replaceState(null, '', '/?filtro=todos')
+    window.history.replaceState(null, '', '/?mostrar=en-curso,idea,sin-traza')
     vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {} }))
     mockApi(workspace({ trabajos: [stack, enPR, idea, sinTraza] }))
     mockEventSource()

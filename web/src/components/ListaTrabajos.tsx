@@ -67,7 +67,7 @@ function Grupos({ grupos, encabezados, now, onOpen }: GruposProps) {
   ))
 }
 
-/** Lista de celular: grupos por repo, cada uno por etapa y, con «todos», los sin traza al final en un grupo colapsado. */
+/** Lista de celular: grupos por repo, cada uno por etapa y, con la categoría sin traza elegida, esos trabajos al final en un grupo colapsado. */
 export function ListaTrabajos({ vista, now, onOpen }: { vista: Vista; now: Date; onOpen: (t: Trabajo) => void }) {
   return (
     <ul aria-label="Trabajos" className="flex flex-col pb-[env(safe-area-inset-bottom)]">
