@@ -1,0 +1,1607 @@
+{
+ "data": {
+  "repository": {
+   "issues": {
+    "totalCount": 4,
+    "nodes": [
+     {
+      "number": 57,
+      "title": "Issue 57 sintético",
+      "url": "https://github.com/pramaestudio/platform/issues/57",
+      "updatedAt": "2026-10-26T17:00:00Z"
+     },
+     {
+      "number": 56,
+      "title": "Issue 56 sintético",
+      "url": "https://github.com/pramaestudio/platform/issues/56",
+      "updatedAt": "2026-10-26T16:50:00Z"
+     },
+     {
+      "number": 100,
+      "title": "Issue 100 sintético",
+      "url": "https://github.com/pramaestudio/platform/issues/100",
+      "updatedAt": "2026-10-26T16:40:00Z"
+     },
+     {
+      "number": 120,
+      "title": "Idea 120 sintética",
+      "url": "https://github.com/pramaestudio/platform/issues/120",
+      "updatedAt": "2026-10-26T08:00:00Z"
+     }
+    ]
+   },
+   "openPRs": {
+    "nodes": [
+     {
+      "number": 98,
+      "title": "PR 98 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/98",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": [
+        {
+         "isResolved": true
+        }
+       ]
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 106,
+      "title": "PR 106 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/106",
+      "state": "OPEN",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Closes #100",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 108,
+      "title": "PR 108 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/108",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": "CHANGES_REQUESTED",
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 109,
+      "title": "PR 109 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/109",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": "APPROVED",
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 111,
+      "title": "PR 111 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/111",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "test",
+              "status": "COMPLETED",
+              "conclusion": "FAILURE",
+              "startedAt": "2026-10-09T15:00:00Z",
+              "completedAt": "2026-10-09T15:01:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "test",
+              "status": "COMPLETED",
+              "conclusion": "SKIPPED",
+              "startedAt": "2026-10-09T15:06:00Z",
+              "completedAt": "2026-10-09T15:06:01Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 112,
+      "title": "PR 112 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/112",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "CONFLICTING",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 113,
+      "title": "PR 113 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/113",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": [
+        {
+         "isResolved": true
+        },
+        {
+         "isResolved": false
+        }
+       ]
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 114,
+      "title": "PR 114 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/114",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "test",
+              "status": "IN_PROGRESS",
+              "conclusion": null,
+              "startedAt": "2026-10-26T11:00:00Z",
+              "completedAt": null,
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 130,
+      "title": "PR 130 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/130",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Arregla el tablero.\n\nCloses #57",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 131,
+      "title": "PR 131 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/131",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #120",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "recentPRs": {
+    "nodes": [
+     {
+      "number": 95,
+      "title": "PR 95 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/95",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:53:10Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee00005f"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 96,
+      "title": "PR 96 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/96",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:53:20Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee000060"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 97,
+      "title": "PR 97 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/97",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:53:30Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee000061"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 98,
+      "title": "PR 98 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/98",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": [
+        {
+         "isResolved": true
+        }
+       ]
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 103,
+      "title": "PR 103 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/103",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T18:54:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee000067"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 104,
+      "title": "PR 104 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/104",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-25T19:01:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee000068"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 105,
+      "title": "PR 105 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/105",
+      "state": "MERGED",
+      "isDraft": false,
+      "mergeable": "UNKNOWN",
+      "reviewDecision": null,
+      "mergedAt": "2026-10-26T18:10:00Z",
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #100",
+      "mergeCommit": {
+       "oid": "0000000000000000000000000000c0ffee000069"
+      },
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 106,
+      "title": "PR 106 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/106",
+      "state": "OPEN",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Closes #100",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 108,
+      "title": "PR 108 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/108",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": "CHANGES_REQUESTED",
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 109,
+      "title": "PR 109 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/109",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": "APPROVED",
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 111,
+      "title": "PR 111 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/111",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "test",
+              "status": "COMPLETED",
+              "conclusion": "FAILURE",
+              "startedAt": "2026-10-09T15:00:00Z",
+              "completedAt": "2026-10-09T15:01:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "test",
+              "status": "COMPLETED",
+              "conclusion": "SKIPPED",
+              "startedAt": "2026-10-09T15:06:00Z",
+              "completedAt": "2026-10-09T15:06:01Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 112,
+      "title": "PR 112 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/112",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "CONFLICTING",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 113,
+      "title": "PR 113 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/113",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": [
+        {
+         "isResolved": true
+        },
+        {
+         "isResolved": false
+        }
+       ]
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 114,
+      "title": "PR 114 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/114",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "test",
+              "status": "IN_PROGRESS",
+              "conclusion": null,
+              "startedAt": "2026-10-26T11:00:00Z",
+              "completedAt": null,
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 130,
+      "title": "PR 130 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/130",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Arregla el tablero.\n\nCloses #57",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "number": 131,
+      "title": "PR 131 sintético",
+      "url": "https://github.com/pramaestudio/platform/pull/131",
+      "state": "OPEN",
+      "isDraft": false,
+      "mergeable": "MERGEABLE",
+      "reviewDecision": null,
+      "mergedAt": null,
+      "updatedAt": "2026-10-26T12:00:00Z",
+      "body": "Refs #120",
+      "mergeCommit": null,
+      "reviewThreads": {
+       "nodes": []
+      },
+      "commits": {
+       "nodes": [
+        {
+         "commit": {
+          "statusCheckRollup": {
+           "contexts": {
+            "nodes": [
+             {
+              "__typename": "CheckRun",
+              "name": "Front",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:00:00Z",
+              "completedAt": "2026-10-26T10:02:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             },
+             {
+              "__typename": "CheckRun",
+              "name": "Binario",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "startedAt": "2026-10-26T10:02:10Z",
+              "completedAt": "2026-10-26T10:03:00Z",
+              "checkSuite": {
+               "workflowRun": {
+                "workflow": {
+                 "name": "CI"
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  }
+ }
+}

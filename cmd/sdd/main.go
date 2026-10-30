@@ -3,17 +3,26 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
+	"errors"
 	"flag"
-	"fmt"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"sync"
+	"syscall"
+	"time"
 
+	"github.com/chichex/sdd/internal/api"
+	"github.com/chichex/sdd/internal/github"
+	"github.com/chichex/sdd/internal/workspace"
 	"github.com/chichex/sdd/web"
 )
 
@@ -23,36 +32,62 @@ func main() {
 	host := flag.String("host", "127.0.0.1", "interfaz donde escucha; 0.0.0.0 para abrirlo desde la LAN")
 	port := flag.Int("port", 4321, "puerto")
 	dir := flag.String("dir", ".", "carpeta cuyos subdirectorios se escanean buscando .sdd/project.md")
+	watch := flag.Duration("watch-interval", workspace.DefaultWatchInterval, "cada cuánto se revisan los logs y artefactos locales")
+	ghInterval := flag.Duration("github-interval", github.DefaultInterval, "cada cuánto se consulta GitHub por repo")
+	cacheDir := flag.String("cache-dir", "", "carpeta de caché de los snapshots de GitHub (default: la caché del usuario)")
+	noGitHub := flag.Bool("no-github", false, "no consultar GitHub: solo lo local")
 	flag.Parse()
 
 	root, err := filepath.Abs(*dir)
 	if err != nil {
 		log.Fatal(err)
 	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
+	cfg := workspace.Config{Root: root, WatchInterval: *watch, GitHubInterval: *ghInterval, CacheDir: *cacheDir}
+	if !*noGitHub {
+		cfg.GitHub = github.ExecRunner{}
+	}
+	if cfg.CacheDir == "" {
+		if dir, err := os.UserCacheDir(); err == nil {
+			cfg.CacheDir = dir
+		}
+	}
+	svc := workspace.New(cfg)
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
-		writeJSON(w, map[string]any{"ok": true, "version": version, "root": root})
-	})
+	api.New(svc, version).Register(mux)
 	mux.Handle("/", spaHandler(web.Dist()))
 
-	ln, err := net.Listen("tcp", net.JoinHostPort(*host, fmt.Sprint(*port)))
+	ln, err := net.Listen("tcp", net.JoinHostPort(*host, strconv.Itoa(*port)))
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("sdd %s · escaneando %s\n", version, root)
-	fmt.Printf("abrí http://%s\n", ln.Addr())
-	if *host != "127.0.0.1" && *host != "localhost" {
-		fmt.Println("aviso: escuchando en la red local, sin autenticación")
+	listenPort := *port
+	if tcp, ok := ln.Addr().(*net.TCPAddr); ok {
+		listenPort = tcp.Port
 	}
-	log.Fatal(http.Serve(ln, mux))
-}
+	banner(os.Stdout, bannerInfo{Host: *host, Port: listenPort, Root: root, Version: version}, net.InterfaceAddrs)
 
-func writeJSON(w http.ResponseWriter, v any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		log.Println("json:", err)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_ = svc.Run(ctx) // solo termina al cancelar ctx
+	}()
+	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}
+	go func() {
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			log.Println("shutdown:", err)
+		}
+	}()
+	if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal(err)
 	}
+	wg.Wait()
 }
 
 // spaHandler sirve los archivos del build y cae a index.html para cualquier
