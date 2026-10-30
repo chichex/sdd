@@ -32,13 +32,13 @@ Dirección `sobrio-indigo`. Los tokens del doc están materializados en `web/src
 | dev front | `npm run dev` | web | verificado 2026-10-29 | — | Vite en `http://localhost:5173`, listo en ~1 s; escucha solo en `[::1]`, así que `127.0.0.1:5173` no responde. Proxy `/api` → `127.0.0.1:4321`: necesita el binario corriendo. |
 
 ## Ambientes
-- Un solo ambiente: local. No hay staging ni prod; el producto es una herramienta local que se distribuye como binario (releases de GitHub, todavía sin workflow).
+- Un solo ambiente: local. No hay staging ni prod; el producto es una herramienta local que se distribuye como binario (releases de GitHub que publica `release.yml` en cada merge a `main`).
 - Env vars: ninguna. Toda la configuración entra por flags. No hay `.env` ni docker-compose. Los snapshots de GitHub se cachean en la caché del usuario (`--cache-dir` la cambia).
 - Servicios externos: `gh` CLI como subproceso (GitHub, solo lectura; `--no-github` lo apaga) y lectura de clones git locales. Para probar a mano: `./bin/sdd --host 0.0.0.0 --dir /home/chiche/workspace` escanea los repos con `.sdd/project.md` bajo esa carpeta.
 - Datos para verificación autónoma: solo fixtures dentro del repo (Decisiones humanas 2026-10-25): `testdata/vectors` (conformance de `events-v1` y `SDD-Tracking v1`), `testdata/events`, `testdata/tracking`, `testdata/gh` (respuestas de `gh` grabadas, incluidos rollups de checks), `testdata/mkworkspace` (arma un workspace con repos git reales en `t.TempDir()`; `fixtureWorkspace` en `internal/api/helpers_test.go`) y `testdata/workspace` (markdown sueltos, sin repos git). Los tests no usan red ni el workspace real.
 - Git: branch default `main` (`gh repo view`); `origin/HEAD` apunta a `main`. Remote `origin` = `https://github.com/chichex/sdd.git`, protocolo https. /sdd-run ramifica desde `origin/main`.
 - Capacidad de PR: remote configurado y `gh` autenticado como `chichex` con scopes `repo` y `workflow`: /sdd-run puede pushear branches y abrir PRs. Extensión `gh-stack` v0.2.1 instalada: los stacks de capas se vinculan y mergean como stacks nativos de GitHub (`/sdd-land`).
-- CI (`.github/workflows/ci.yml`, en push a `main` y en PR): job Front (`npm ci`, `npm test`, `npm run build`, sube `web-dist`) y job Binario (`go vet`, `go test`, `go build` con ese dist). Eso es lo que tiene que pasar. Review a pedido: `gh workflow run claude-review.yml --repo chichex/sdd -f pr=<N>`; el secret `CLAUDE_CODE_OAUTH_TOKEN` todavía no está cargado (ver Gaps).
+- CI (`.github/workflows/ci.yml`, en push a `main` y en PR): job Front (`npm ci`, `npm test`, `npm run build`, sube `web-dist`), job Binario (`go vet`, `go test`, `go build` con ese dist) y, solo en PR, job Version (`go run ./cmd/versioncheck`: `VERSION` mayor que el último tag `v*`). Release (`.github/workflows/release.yml`, en push a `main`): tests, `versioncheck`, `make release-assets` y `gh release create v<VERSION>`. Eso es lo que tiene que pasar. Review a pedido: `gh workflow run claude-review.yml --repo chichex/sdd -f pr=<N>`; el secret `CLAUDE_CODE_OAUTH_TOKEN` todavía no está cargado (ver Gaps).
 - Log SDD propio: `.git/sdd/events.jsonl` (fuera del árbol) es lo que el visor lee de este mismo repo.
 
 ## Verificacion autonoma
@@ -56,7 +56,7 @@ No se puede verificar sin humano:
 
 ## Limites
 Sin confirmación humana, NO:
-- Deploy ni publicación: no crear releases, tags `v*` ni subir binarios.
+- Releases y tags `v*`: los crea solo `release.yml` al mergear a `main`; nunca a mano ni desde un run.
 - `git push` a `main`: solo branches `sdd/*` o `chore/*` con PR.
 - Migraciones sobre datos compartidos: no aplica (sin base de datos).
 - Tocar servicios pagos: no aplica. Tampoco gastar el rate limit de GitHub en verificaciones: los tests no usan red.
@@ -87,4 +87,4 @@ Sin confirmación humana, NO:
 - Sin e2e de UI en el repo. En esta máquina hay `playwright-core` 1.63 en la caché de npx (`~/.npm/_npx/40a319e23a391f24/node_modules/playwright-core`) con Chromium 1243 ya descargado: sirve para probes manuales con un script de Node (capturas, conteos del DOM) contra el binario levantado; no es un escalón del contrato ni corre en CI.
 - Secret `CLAUDE_CODE_OAUTH_TOKEN` no cargado en `chichex/sdd`: `claude-review.yml` falla hasta correr `gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo chichex/sdd`.
 - Excepción de `no-panic` en `web/embed.go`: se elimina cuando `Dist()` devuelva error en vez de panic.
-- Distribución del binario (un archivo por plataforma, grill D27): sin workflow de release todavía.
+- check `Version` todavía no marcado como requerido en branch protection: lo hace el humano. Hasta entonces, un merge sin bump deja `release.yml` rojo sin publicar nada.
