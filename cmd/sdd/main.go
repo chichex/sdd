@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"io/fs"
 	"log"
 	"net"
@@ -26,7 +27,10 @@ import (
 	"github.com/chichex/sdd/web"
 )
 
-const version = "0.0.0-dev"
+// version la reemplaza el build con -ldflags "-X main.version=<v>": `make build`
+// inyecta <VERSION>-dev y el release la VERSION exacta. Es var porque -X no
+// puede escribir una const.
+var version = "0.0.0-dev"
 
 func main() {
 	host := flag.String("host", "127.0.0.1", "interfaz donde escucha; 0.0.0.0 para abrirlo desde la LAN")
@@ -36,7 +40,12 @@ func main() {
 	ghInterval := flag.Duration("github-interval", github.DefaultInterval, "cada cuánto se consulta GitHub por repo")
 	cacheDir := flag.String("cache-dir", "", "carpeta de caché de los snapshots de GitHub (default: la caché del usuario)")
 	noGitHub := flag.Bool("no-github", false, "no consultar GitHub: solo lo local")
+	showVersion := flag.Bool("version", false, "imprimir la versión y salir")
 	flag.Parse()
+	if *showVersion {
+		fmt.Printf("sdd %s\n", version)
+		return
+	}
 
 	root, err := filepath.Abs(*dir)
 	if err != nil {
