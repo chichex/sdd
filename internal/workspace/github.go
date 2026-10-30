@@ -31,7 +31,8 @@ func (s *Service) githubRepos() []string {
 }
 
 // loadCaches sirve el último snapshot cacheado de cada repo mientras corre la
-// primera consulta.
+// primera consulta. Entra a la vista, con su fetchedAt, en el primer
+// rebuild(), junto con los trabajos armados con esa caché.
 func (s *Service) loadCaches() {
 	if s.cfg.CacheDir == "" || s.poller == nil {
 		return
@@ -47,23 +48,27 @@ func (s *Service) loadCaches() {
 
 // applyGitHub guarda el resultado de un poll: el snapshot fresco (y su caché
 // y sus tags locales) o el motivo del degradado, conservando lo anterior.
+// Todos los repos y polled entran bajo un solo lock y después un solo
+// rebuild() los publica: nadie ve un poll a medias.
 func (s *Service) applyGitHub(res github.Result) {
+	tags := map[string]model.Tags{}
 	for _, r := range res.Repos {
 		if r.Snapshot == nil {
-			s.mu.Lock()
-			s.ghStatus[r.Repo] = repoStatus{reason: r.Reason}
-			s.mu.Unlock()
 			continue
 		}
 		if s.cfg.CacheDir != "" {
 			_ = github.SaveCache(s.cfg.CacheDir, r.Snapshot) // sin caché solo se pierde el arranque rápido
 		}
-		tags := s.tagsFor(r.Repo, r.Snapshot)
-		s.mu.Lock()
-		s.gh[r.Repo], s.ghStatus[r.Repo], s.tags[r.Repo] = r.Snapshot, repoStatus{ok: true}, tags
-		s.mu.Unlock()
+		tags[r.Repo] = s.tagsFor(r.Repo, r.Snapshot) // corre git: fuera del lock
 	}
 	s.mu.Lock()
+	for _, r := range res.Repos {
+		if r.Snapshot == nil {
+			s.ghStatus[r.Repo] = repoStatus{reason: r.Reason}
+			continue
+		}
+		s.gh[r.Repo], s.ghStatus[r.Repo], s.tags[r.Repo] = r.Snapshot, repoStatus{ok: true}, tags[r.Repo]
+	}
 	s.polled = true
 	s.mu.Unlock()
 	s.rebuild()
@@ -117,7 +122,8 @@ func (s *Service) inputFor(d scan.Data) model.RepoInput {
 	return in
 }
 
-// githubStatus resume el estado global y el de cada repo.
+// githubStatus resume el estado global y el de cada repo. Se llama con s.mu
+// tomado, desde rebuild() y desde el descubrimiento, que guardan el resultado.
 func (s *Service) githubStatus() (GitHubStatus, map[string]GitHubStatus) {
 	perRepo := map[string]GitHubStatus{}
 	if s.poller == nil {
@@ -165,6 +171,5 @@ func (s *Service) Refresh(ctx context.Context) string {
 	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	global, _ := s.githubStatus()
-	return global.FetchedAt
+	return s.ghGlobal.FetchedAt
 }
