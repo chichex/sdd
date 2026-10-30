@@ -43,3 +43,18 @@ jobs:
       - run: go vet ./...
       - run: go test ./...
       - run: go build -o bin/sdd ./cmd/sdd
+
+  version:
+    name: Version
+    # VERSION tiene que ser mayor que el último tag v*: se bumpea en cada PR.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go run ./cmd/versioncheck
