@@ -23,7 +23,7 @@ const (
 func fixtureWorkspace(t *testing.T) string {
 	t.Helper()
 	if _, err := exec.LookPath("git"); err != nil {
-		t.Skip("git no está en PATH: el test necesita repos temporales")
+		t.Fatalf("git no está en PATH: el test necesita repos temporales: %v", err)
 	}
 	dir := filepath.Join(t.TempDir(), "ws")
 	if out, err := exec.Command("bash", "../../testdata/mkworkspace.sh", dir).CombinedOutput(); err != nil {
