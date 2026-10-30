@@ -5,6 +5,7 @@ package workspace
 
 import (
 	"context"
+	"maps"
 	"sync"
 	"time"
 
@@ -33,7 +34,8 @@ type GitHubStatus struct {
 	FetchedAt string
 }
 
-// Snapshot es una foto consistente del estado.
+// Snapshot es una foto consistente del estado: GitHub, RepoGitHub y Trabajos
+// salen del mismo rebuild().
 type Snapshot struct {
 	Root       string
 	ScannedAt  string
@@ -46,21 +48,27 @@ type Snapshot struct {
 
 // Service es el dueño del estado en vivo.
 type Service struct {
-	mu        sync.RWMutex
-	cfg       Config
-	now       func() time.Time
-	repos     []scan.Repo
-	data      map[string]scan.Data
-	stamps    map[string]string
+	mu       sync.RWMutex
+	cfg      Config
+	now      func() time.Time
+	repos    []scan.Repo
+	data     map[string]scan.Data
+	stamps   map[string]string
+	scanning bool
+	subs     map[chan struct{}]struct{}
+	poller   *github.Poller
+	gh       map[string]*github.Snapshot
+	ghStatus map[string]repoStatus
+	tags     map[string]model.Tags
+	polled   bool
+
+	// Vista derivada del estado de arriba: la reescribe rebuild() entera y
+	// bajo un solo lock, y Snapshot() solo la lee. ghPerRepo no se muta una
+	// vez guardado.
 	trabajos  []model.Trabajo
 	scannedAt string
-	scanning  bool
-	subs      map[chan struct{}]struct{}
-	poller    *github.Poller
-	gh        map[string]*github.Snapshot
-	ghStatus  map[string]repoStatus
-	tags      map[string]model.Tags
-	polled    bool
+	ghGlobal  GitHubStatus
+	ghPerRepo map[string]GitHubStatus
 }
 
 // New crea el servicio; Run lo pone en marcha.
@@ -77,6 +85,7 @@ func New(cfg Config) *Service {
 	if cfg.GitHub != nil {
 		s.poller = &github.Poller{Runner: cfg.GitHub, Interval: cfg.GitHubInterval, Repos: s.githubRepos, OnResult: s.applyGitHub}
 	}
+	s.ghGlobal, s.ghPerRepo = s.githubStatus()
 	return s
 }
 
@@ -113,6 +122,7 @@ func (s *Service) scanAll(ctx context.Context) {
 	}
 	s.mu.Lock()
 	s.repos, s.scanning = repos, true
+	s.ghGlobal, s.ghPerRepo = s.githubStatus() // todos los repos tienen estado desde el descubrimiento
 	s.mu.Unlock()
 	s.loadCaches()
 	s.publish()
@@ -151,7 +161,8 @@ func (s *Service) watchTick() {
 	}
 }
 
-// rebuild rearma los trabajos con lo leído hasta ahora y avisa.
+// rebuild rearma los trabajos y el estado de GitHub con lo leído hasta ahora,
+// en una sola sección crítica, y avisa.
 func (s *Service) rebuild() {
 	s.mu.Lock()
 	inputs := make([]model.RepoInput, 0, len(s.repos))
@@ -161,13 +172,15 @@ func (s *Service) rebuild() {
 		}
 	}
 	s.trabajos = model.Build(inputs)
+	s.ghGlobal, s.ghPerRepo = s.githubStatus()
 	s.scannedAt = s.now().UTC().Format("2006-01-02T15:04:05.000Z")
 	s.mu.Unlock()
 	s.publish()
 }
 
 // Snapshot devuelve el estado actual. Los repos todavía sin leer aparecen
-// con lo que se sabe del descubrimiento.
+// con lo que se sabe del descubrimiento. El estado de GitHub y los trabajos
+// son los que guardó el mismo rebuild(): no se recalcula nada acá.
 func (s *Service) Snapshot() Snapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -179,13 +192,12 @@ func (s *Service) Snapshot() Snapshot {
 		}
 		repos = append(repos, d)
 	}
-	global, perRepo := s.githubStatus()
 	return Snapshot{
 		Root:       s.cfg.Root,
 		ScannedAt:  s.scannedAt,
 		Scanning:   s.scanning,
-		GitHub:     global,
-		RepoGitHub: perRepo,
+		GitHub:     s.ghGlobal,
+		RepoGitHub: maps.Clone(s.ghPerRepo), // el mapa guardado es de rebuild(), no del llamador
 		Repos:      repos,
 		Trabajos:   s.trabajos,
 	}
