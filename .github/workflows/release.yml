@@ -1,0 +1,52 @@
+name: Release
+
+# Cada merge a main publica el release v<VERSION> con un binario por plataforma
+# y checksums.txt. Si VERSION no subió (el tag ya existe) o es inválida, falla
+# en versioncheck antes de compilar y no publica nada.
+on:
+  push:
+    branches: [main]
+
+# En cola y sin cancelar: dos merges seguidos publican en orden.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npm test
+        working-directory: web
+      - run: npm run build
+        working-directory: web
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go vet ./...
+      - run: go test ./...
+      - run: go run ./cmd/versioncheck
+      - run: make release-assets
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # --target fija el tag en el commit de merge que disparó este run,
+        # aunque main haya avanzado mientras esperaba en la cola.
+        run: |
+          tag="v$(cat VERSION)"
+          gh release create "$tag" dist/release/* --title "$tag" --generate-notes --target "$GITHUB_SHA"
