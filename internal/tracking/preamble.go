@@ -11,7 +11,8 @@ var (
 	fenceLine         = regexp.MustCompile("^[ \t]{0,3}(`{3,}|~{3,})")
 	h2Line            = regexp.MustCompile(`^##(?:[ \t]+.*|[ \t]*)$`)
 	singleLineComment = regexp.MustCompile(`^[ \t]*<!--.*-->[ \t]*$`)
-	mentionsTracking  = regexp.MustCompile(`(?i)SDD-Tracking`)
+	mentionsTracking  = regexp.MustCompile(`(?i)(?:SDD|Chiche)-Tracking`)
+	mentionsChiche    = regexp.MustCompile(`(?i)Chiche-Tracking`)
 	declaresCanonical = regexp.MustCompile(`(?i)(?:^|[;\s])(?:version|type)\s*=`)
 )
 
@@ -56,8 +57,8 @@ func preambleLines(markdown string) []string {
 }
 
 // markerLines son las líneas del preámbulo con forma de comentario de una
-// línea que nombran SDD-Tracking, bien formadas o no: un intento canónico
-// roto se reporta inválido en vez de caer a legacy.
+// línea que nombran SDD-Tracking o Chiche-Tracking, bien formadas o no: un
+// intento canónico roto se reporta inválido en vez de caer a legacy.
 func markerLines(markdown string) []string {
 	var out []string
 	for _, line := range preambleLines(markdown) {

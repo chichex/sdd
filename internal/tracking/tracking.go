@@ -18,8 +18,8 @@ const (
 	KindConflict  Kind = "conflict"
 )
 
-// Metadata es la identidad de un artefacto. Version es 1 para la canónica y 0
-// para la legacy; un campo vacío equivale a `none`. Type es spec, grill,
+// Metadata es la identidad de un artefacto. Version es la del marker canónico
+// (2 para Chiche-Tracking, 1 para SDD-Tracking) y 0 para la legacy; un campo vacío equivale a `none`. Type es spec, grill,
 // project o, solo en legacy, unknown.
 type Metadata struct {
 	Version      int
@@ -71,7 +71,7 @@ var (
 )
 
 func validate(m Metadata) *Error {
-	if m.Version != 1 {
+	if m.Version != 1 && m.Version != 2 {
 		return diag("unsupported-version", "unsupported metadata version: %d", m.Version)
 	}
 	switch m.Type {
@@ -125,7 +125,8 @@ func optionalRef(value string) string {
 	return EncodeRef(value)
 }
 
-// Serialize devuelve el marker canónico de una metadata v1 completa y válida.
+// Serialize devuelve el marker canónico de una metadata completa y válida:
+// `Chiche-Tracking: version=2` o `SDD-Tracking: version=1` según su Version.
 // La metadata legacy (Version 0) no se serializa.
 func Serialize(m Metadata) (string, error) {
 	marker, err := serialize(m)
@@ -139,15 +140,19 @@ func serialize(m Metadata) (string, *Error) {
 	if err := validate(m); err != nil {
 		return "", err
 	}
+	prefix := "<!-- SDD-Tracking: version=1; type="
+	if m.Version == 2 {
+		prefix = "<!-- Chiche-Tracking: version=2; type="
+	}
 	switch m.Type {
 	case "spec":
-		return "<!-- SDD-Tracking: version=1; type=spec; state=" + m.State + "; issue=" + issueOrNone(m.Issue) +
+		return prefix + "spec; state=" + m.State + "; issue=" + issueOrNone(m.Issue) +
 			"; grill=" + optionalRef(m.Grill) + "; superseded-by=" + optionalRef(m.SupersededBy) + " -->", nil
 	case "grill":
-		return "<!-- SDD-Tracking: version=1; type=grill; state=" + m.State + "; issue=" + issueOrNone(m.Issue) +
+		return prefix + "grill; state=" + m.State + "; issue=" + issueOrNone(m.Issue) +
 			"; grill=" + EncodeRef(m.Grill) + "; project=" + EncodeRef(m.Project) + " -->", nil
 	}
-	return "<!-- SDD-Tracking: version=1; type=project; generated-at=" + m.GeneratedAt + " -->", nil
+	return prefix + "project; generated-at=" + m.GeneratedAt + " -->", nil
 }
 
 func issueOrNone(issue string) string {
@@ -160,13 +165,14 @@ func issueOrNone(issue string) string {
 func absentState() State { return State{Value: "unknown", Provenance: "absent"} }
 
 // Parse lee la metadata del preámbulo de un artefacto. Un marker que declara
-// version o type es candidato canónico y nunca cae a legacy; dos markers
+// version o type, o que nombra Chiche-Tracking (que no tiene forma histórica),
+// es candidato canónico y nunca cae a legacy; dos markers
 // canónicos idénticos son válidos con `duplicate-canonical`, divergentes son
 // conflicto. Sin candidatos, aplica la compatibilidad legacy.
 func Parse(markdown string) Result {
 	var candidates []string
 	for _, line := range markerLines(markdown) {
-		if declaresCanonical.MatchString(line) {
+		if declaresCanonical.MatchString(line) || mentionsChiche.MatchString(line) {
 			candidates = append(candidates, line)
 		}
 	}
