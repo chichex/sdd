@@ -3,9 +3,18 @@
 Visor local del flujo SDD. Muestra cómo cada *trabajo* avanza por
 Idea → Grill → Spec → Run → PR → Mergeado → Publicado en todos los repos de una
 carpeta, como grafo con ramas en carriles por etapa y con un detalle tipo Gantt.
-Solo lectura. Consume el log `events-v1` y los markers `SDD-Tracking v1` que
-escriben los skills de [`chichex/skills`](https://github.com/chichex/skills),
-más GitHub vía `gh`.
+Solo lectura. Consume el log `events-v1` y los markers `Chiche-Tracking v2` y
+`SDD-Tracking v1` que escriben los skills de
+[`chichex/skills`](https://github.com/chichex/skills), más GitHub vía `gh`.
+
+Lee las dos marcas de la suite, la actual (`chiche`) y la anterior (`sdd`):
+
+- **Repos**: los que tienen `.chiche/project.md` o `.sdd/project.md` bajo `--dir`.
+- **Grills y specs**: de `.chiche/` y `.sdd/` del árbol y de
+  `<git-common-dir>/chiche/` y `<git-common-dir>/sdd/`. Ante el mismo nombre
+  gana `.chiche/` > `.sdd/` > `<common>/chiche/` > `<common>/sdd/`.
+- **Eventos**: `<git-common-dir>/chiche/events.jsonl` y
+  `<git-common-dir>/sdd/events.jsonl`, unidos y ordenados por `ts`.
 
 Estado: esqueleto. Las decisiones de producto están en
 [`.sdd/grills/2026-10-23-visor-flujo-sdd.md`](.sdd/grills/2026-10-23-visor-flujo-sdd.md).

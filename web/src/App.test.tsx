@@ -43,6 +43,7 @@ describe('estados del tablero', () => {
     mockEventSource()
     render(<App />)
     expect(await screen.findByText('sdd --dir <otra carpeta>')).toBeTruthy()
+    expect(screen.getByText('No hay repos con .chiche/project.md ni .sdd/project.md bajo /ws. Corré el visor en otra carpeta:')).toBeTruthy()
     expect(screen.queryByRole('region', { name: 'Tablero' })).toBeNull()
   })
 

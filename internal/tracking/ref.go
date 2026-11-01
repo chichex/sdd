@@ -1,4 +1,5 @@
-// Package tracking porta a Go el contrato SDD-Tracking v1 (skills/docs/sdd-tracking-v1.md):
+// Package tracking porta a Go los contratos Chiche-Tracking v2
+// (skills/docs/chiche-tracking-v2.md) y SDD-Tracking v1 (skills/docs/sdd-tracking-v1.md):
 // la codificación de referencias, el parseo total de markers canónicos y
 // legacy, y la serialización canónica. Es solo lectura: no hay upsert.
 package tracking
@@ -21,7 +22,8 @@ func isUnreserved(b byte) bool {
 	return false
 }
 
-// EncodeRef codifica una referencia con el `<ref>` de SDD-Tracking v1: los
+// EncodeRef codifica una referencia con el `<ref>` de Chiche-Tracking v2 y
+// SDD-Tracking v1 (es el mismo en las dos): los
 // bytes UTF-8 de `[A-Za-z0-9._~-]` quedan literales y el resto va como %HH
 // con hexadecimal en mayúscula.
 func EncodeRef(value string) string {
