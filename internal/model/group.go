@@ -32,6 +32,7 @@ type group struct {
 // si no hay, al componente grill/spec que lo une con el resto.
 type grouper struct {
 	repoID     string
+	brands     map[string]string
 	moved      map[string]string
 	groups     map[string]*group
 	order      []string
@@ -54,8 +55,10 @@ func (g *grouper) normalizeIssue(issue string) string {
 	return issue
 }
 
-// resolveSpec sigue los `spec.moved` hasta la identidad vigente.
+// resolveSpec sigue los `spec.moved` hasta la identidad vigente, con la ruta
+// de cada spec unificada entre marcas.
 func (g *grouper) resolveSpec(spec string) string {
+	spec = g.canonSpec(spec)
 	for hops := 0; hops < 8; hops++ {
 		next, ok := g.moved[spec]
 		if !ok {
@@ -143,9 +146,10 @@ func appendAnchor(list []Ancla, a Ancla) []Ancla {
 
 // run agrupa los eventos (en orden de log) y los artefactos usables del repo.
 func (g *grouper) run(d scan.Data) []*group {
+	g.brands = specBrands(d)
 	for _, ev := range d.Events {
 		if ev.Event == "spec.moved" {
-			g.moved[ev.Previous] = ev.Spec
+			g.moved[g.canonSpec(ev.Previous)] = g.canonSpec(ev.Spec)
 		}
 	}
 	var items []item

@@ -121,13 +121,14 @@ var titlePrefix = regexp.MustCompile(`(?i)^(?:spec|grill)\s*[:—–-]\s*`)
 func cleanTitle(h1 string) string { return strings.TrimSpace(titlePrefix.ReplaceAllString(h1, "")) }
 
 var (
-	specSlug  = regexp.MustCompile(`^\.sdd/specs/([^/]+)\.md$`)
+	specSlug  = regexp.MustCompile(`^\.(?:chiche|sdd)/specs/([^/]+)\.md$`)
 	grillSlug = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-(.+)$`)
 )
 
 // anchorSlug es el nombre legible de un ancla sin título: el archivo de una
 // spec sin su ruta ni extensión y el grill sin su prefijo de fecha. Cualquier
-// otra referencia (un issue, una ruta que no es `.sdd/specs/<slug>.md`) queda
+// otra referencia (un issue, una ruta que no es `.chiche/specs/<slug>.md` ni
+// `.sdd/specs/<slug>.md`) queda
 // tal cual.
 func anchorSlug(a Ancla) string {
 	var re *regexp.Regexp
