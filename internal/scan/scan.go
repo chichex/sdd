@@ -1,6 +1,6 @@
-// Package scan descubre los repos SDD bajo una carpeta y lee sus fuentes
-// locales: el log events-v1 del common-dir y los grills y specs del árbol y
-// del common-dir. Solo lee: nunca escribe en los clones.
+// Package scan descubre los repos de la suite (chiche, antes sdd) bajo una
+// carpeta y lee sus fuentes locales: los logs events-v1 del common-dir y los
+// grills y specs del árbol y del common-dir, de las dos marcas. Solo lee: nunca escribe en los clones.
 package scan
 
 import (
@@ -11,7 +11,8 @@ import (
 )
 
 // Repo es un repo descubierto: una o más rutas (worktrees) que comparten
-// common-dir. Una carpeta con .sdd/project.md sin git es SinGit y no se lee.
+// common-dir. Una carpeta con .chiche/project.md o .sdd/project.md sin git es
+// SinGit y no se lee.
 type Repo struct {
 	ID        string
 	Nombre    string
@@ -31,7 +32,8 @@ func (r Repo) GitHubRepo() (string, bool) {
 }
 
 // Artifact es un grill o una spec leídos del disco. Logical es la ruta lógica
-// `.sdd/<kind>s/<name>`, la misma para la copia del árbol y la del common-dir.
+// `.<marca>/<kind>s/<name>` (marca chiche o sdd), la misma para la copia del
+// árbol y la del common-dir.
 type Artifact struct {
 	Kind     string
 	Name     string

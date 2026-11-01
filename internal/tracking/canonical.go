@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	canonicalWrapper = regexp.MustCompile(`^<!-- SDD-Tracking: (.+) -->$`)
+	canonicalWrapper = regexp.MustCompile(`^<!-- (SDD|Chiche)-Tracking: (.+) -->$`)
 	canonicalPair    = regexp.MustCompile(`^([a-z][a-z-]*)=([^;=\s]+)$`)
 )
 
@@ -17,9 +17,13 @@ var schemas = map[string][]string{
 	"project": {"version", "type", "generated-at"},
 }
 
-// parseCanonical valida un marker canónico byte a byte: sintaxis, claves
-// (únicas, completas y en orden), valores y que su serialización reproduzca
-// exactamente los bytes leídos.
+// markerVersion ata cada nombre de marker a su versión: `SDD-Tracking` es la 1
+// (solo lectura) y `Chiche-Tracking` la 2, con los mismos esquemas.
+var markerVersion = map[string]string{"SDD": "1", "Chiche": "2"}
+
+// parseCanonical valida un marker canónico byte a byte: sintaxis, nombre y
+// versión, claves (únicas, completas y en orden), valores y que su
+// serialización reproduzca exactamente los bytes leídos.
 func parseCanonical(raw string) (Metadata, *Error) {
 	wrapper := canonicalWrapper.FindStringSubmatch(raw)
 	if wrapper == nil {
@@ -27,7 +31,7 @@ func parseCanonical(raw string) (Metadata, *Error) {
 	}
 	var keys []string
 	values := map[string]string{}
-	for _, pair := range strings.Split(wrapper[1], "; ") {
+	for _, pair := range strings.Split(wrapper[2], "; ") {
 		m := canonicalPair.FindStringSubmatch(pair)
 		if m == nil {
 			return Metadata{}, diag("invalid-marker-syntax", "canonical field syntax is invalid")
@@ -42,7 +46,10 @@ func parseCanonical(raw string) (Metadata, *Error) {
 	if !ok {
 		return Metadata{}, diag("missing-key", "missing canonical key: version")
 	}
-	if version != "1" {
+	if want := markerVersion[wrapper[1]]; version != want {
+		if version == "1" || version == "2" {
+			return Metadata{}, diag("marker-version-mismatch", "%s-Tracking requires version=%s, got %s", wrapper[1], want, version)
+		}
 		return Metadata{}, diag("unsupported-version", "unsupported version: %s", version)
 	}
 	expected, ok := schemas[values["type"]]
@@ -52,7 +59,7 @@ func parseCanonical(raw string) (Metadata, *Error) {
 	if err := checkSchema(keys, values, expected); err != nil {
 		return Metadata{}, err
 	}
-	meta, err := canonicalValues(values)
+	meta, err := canonicalValues(values, int(version[0]-'0'))
 	if err != nil {
 		return Metadata{}, err
 	}
@@ -91,8 +98,8 @@ func optionalDecoded(value string) (string, bool) {
 	return DecodeRef(value)
 }
 
-func canonicalValues(values map[string]string) (Metadata, *Error) {
-	meta := Metadata{Version: 1, Type: values["type"]}
+func canonicalValues(values map[string]string, version int) (Metadata, *Error) {
+	meta := Metadata{Version: version, Type: values["type"]}
 	if meta.Type == "project" {
 		meta.GeneratedAt = values["generated-at"]
 		return meta, nil

@@ -40,8 +40,8 @@ func loadExpected(t *testing.T) map[string]expectedFixture {
 func TestParse_Fixtures(t *testing.T) {
 	expected := loadExpected(t)
 	files, err := filepath.Glob("../../testdata/tracking/*.md")
-	if err != nil || len(files) != 21 || len(expected) != 21 {
-		t.Fatalf("fixtures = %d, esperados = %d, err %v; want 21 y 21", len(files), len(expected), err)
+	if err != nil || len(files) != 27 || len(expected) != 27 {
+		t.Fatalf("fixtures = %d, esperados = %d, err %v; want 27 y 27", len(files), len(expected), err)
 	}
 	for _, file := range files {
 		name := filepath.Base(file)

@@ -1,9 +1,15 @@
 {
-  "_fuente": "Clasificación esperada de los 21 fixtures copiados de skills/pi-extensions/sdd-artifacts/fixtures/. Valores tomados de las tablas de sdd-artifacts.test.ts («runs the Markdown fixture conformance matrix» y «recognizes Spanish and English legacy fixtures») y, para upsert-lf.md, de la regla de reconocimiento de contratos de docs/sdd-tracking-v1.md.",
+  "_fuente": "Clasificación esperada de los 27 fixtures copiados de skills/pi-extensions/sdd-artifacts/fixtures/ (hoy chiche-artifacts/fixtures/; los seis de Chiche-Tracking v2 y unsupported-version.md, de su capa 1). Valores tomados de las tablas de sdd-artifacts.test.ts («runs the Markdown fixture conformance matrix» y «recognizes Spanish and English legacy fixtures») y, para upsert-lf.md, de la regla de reconocimiento de contratos de docs/sdd-tracking-v1.md.",
   "fixtures": {
     "canonical-spec.md": {"kind": "canonical", "type": "spec", "state": "approved", "provenance": "canonical", "issue": "owner/repo#9", "grill": "session 9"},
     "canonical-grill.md": {"kind": "canonical", "type": "grill", "state": "finalized", "provenance": "canonical", "issue": "#9", "grill": "session-9", "project": "/workspace/project"},
     "canonical-project.md": {"kind": "canonical", "type": "project", "state": "unknown", "provenance": "absent", "generatedAt": "2026-08-08"},
+    "chiche-v2-spec.md": {"kind": "canonical", "type": "spec", "state": "approved", "provenance": "canonical", "issue": "owner/repo#9", "grill": "session 9"},
+    "chiche-v2-grill.md": {"kind": "canonical", "type": "grill", "state": "finalized", "provenance": "canonical", "issue": "#9", "grill": "session-9", "project": "/workspace/project"},
+    "chiche-v2-project.md": {"kind": "canonical", "type": "project", "state": "unknown", "provenance": "absent", "generatedAt": "2026-08-08"},
+    "invalid-sdd-tracking-v2.md": {"kind": "invalid", "state": "unknown", "provenance": "absent", "diagnostic": "marker-version-mismatch"},
+    "invalid-chiche-tracking-v1.md": {"kind": "invalid", "state": "unknown", "provenance": "absent", "diagnostic": "marker-version-mismatch"},
+    "mixed-v1-v2.md": {"kind": "conflict", "state": "unknown", "provenance": "absent", "diagnostic": "conflicting-canonical"},
     "legacy-unknown.md": {"kind": "legacy", "type": "spec", "state": "unknown", "provenance": "legacy-explicit", "raw": "waiting for legal review"},
     "legacy-inferred.md": {"kind": "legacy", "type": "spec", "state": "implemented", "provenance": "legacy-inferred"},
     "harness-pi.md": {"kind": "legacy", "type": "spec", "state": "approved", "provenance": "legacy-explicit", "raw": "aprobada", "issue": "#9"},

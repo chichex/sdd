@@ -31,12 +31,12 @@ func runGit(ctx context.Context, dir string, args ...string) (string, error) {
 }
 
 // candidates recorre root hasta MaxDepth y devuelve las carpetas con
-// .sdd/project.md. No sigue symlinks ni entra en skipDirs.
+// .chiche/project.md o .sdd/project.md. No sigue symlinks ni entra en skipDirs.
 func candidates(root string) []string {
 	var found []string
 	var walk func(dir string, depth int)
 	walk = func(dir string, depth int) {
-		if info, err := os.Stat(filepath.Join(dir, ".sdd", "project.md")); err == nil && info.Mode().IsRegular() {
+		if hasProject(dir) {
 			found = append(found, dir)
 		}
 		if depth == MaxDepth {
@@ -56,7 +56,17 @@ func candidates(root string) []string {
 	return found
 }
 
-// Discover busca repos con .sdd/project.md hasta MaxDepth bajo root y agrupa
+// hasProject dice si dir tiene el contrato de la suite en alguna de sus marcas.
+func hasProject(dir string) bool {
+	for _, b := range brands {
+		if info, err := os.Stat(filepath.Join(dir, "."+b, "project.md")); err == nil && info.Mode().IsRegular() {
+			return true
+		}
+	}
+	return false
+}
+
+// Discover busca repos con .chiche/project.md o .sdd/project.md hasta MaxDepth bajo root y agrupa
 // los worktrees que comparten common-dir en un solo repo.
 func Discover(ctx context.Context, root string) ([]Repo, error) {
 	if _, err := os.Stat(root); err != nil {

@@ -1,5 +1,6 @@
 // Package events porta a Go el log local events-v1 (skills/docs/sdd-events-v1.md):
-// una línea JSON canónica por evento en <git-common-dir>/sdd/events.jsonl.
+// una línea JSON canónica por evento en <git-common-dir>/chiche/events.jsonl o
+// <git-common-dir>/sdd/events.jsonl.
 // El parseo es total: nunca hace panic y devuelve un evento válido, una
 // versión no soportada o una línea inválida con su código de diagnóstico.
 package events

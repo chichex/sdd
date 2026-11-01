@@ -13,46 +13,83 @@ import (
 	"github.com/chichex/sdd/internal/tracking"
 )
 
-// EventsPath es la ubicación del log de un repo.
-func EventsPath(r Repo) string { return filepath.Join(r.CommonDir, "sdd", "events.jsonl") }
+// brands son las dos marcas de la suite, en orden de precedencia: chiche (la
+// actual) gana sobre sdd (la anterior, que se sigue leyendo).
+var brands = []string{"chiche", "sdd"}
 
-// artifactDirs devuelve, para grills o specs, el directorio del árbol (del
-// checkout principal) y el del common-dir, en ese orden de precedencia.
-func artifactDirs(r Repo, kind string) []string {
-	dirs := []string{filepath.Join(r.Rutas[0], ".sdd", kind+"s")}
+// EventsPaths son los logs de un repo: `<common>/sdd/events.jsonl` primero,
+// así un empate de ts deja lo anterior antes que lo nuevo.
+func EventsPaths(r Repo) []string {
+	return []string{filepath.Join(r.CommonDir, "sdd", "events.jsonl"), filepath.Join(r.CommonDir, "chiche", "events.jsonl")}
+}
+
+// artifactDir es un directorio de grills o specs y la marca de su ruta lógica.
+type artifactDir struct{ path, brand string }
+
+// artifactDirs devuelve, para grills o specs, los cuatro directorios en orden
+// de precedencia: `.chiche/` y `.sdd/` del árbol (del checkout principal) y
+// después `chiche/` y `sdd/` del common-dir.
+func artifactDirs(r Repo, kind string) []artifactDir {
+	var dirs []artifactDir
+	for _, b := range brands {
+		dirs = append(dirs, artifactDir{filepath.Join(r.Rutas[0], "."+b, kind+"s"), b})
+	}
 	if r.CommonDir != "" {
-		dirs = append(dirs, filepath.Join(r.CommonDir, "sdd", kind+"s"))
+		for _, b := range brands {
+			dirs = append(dirs, artifactDir{filepath.Join(r.CommonDir, b, kind+"s"), b})
+		}
 	}
 	return dirs
 }
 
-// Read lee el log, los grills y las specs de un repo. Un directorio ausente
+// Read lee los logs, los grills y las specs de un repo. Un directorio ausente
 // es vacío; un archivo ilegible va a Errores sin frenar la lectura.
 func Read(r Repo) Data {
 	d := Data{Repo: r}
 	if r.SinGit || len(r.Rutas) == 0 {
 		return d
 	}
-	if f, err := os.Open(EventsPath(r)); err == nil {
-		log, rerr := events.ReadLog(f)
-		_ = f.Close() // solo lectura: un error al cerrar no invalida lo leído
-		d.Events, d.LineasInvalidas = log.Events, log.Invalid+log.Unsupported
-		if rerr != nil {
-			d.Errores = append(d.Errores, rerr.Error())
+	logs := 0
+	for _, path := range EventsPaths(r) {
+		if d.readLog(path) {
+			logs++
 		}
-	} else if !errors.Is(err, fs.ErrNotExist) {
-		d.Errores = append(d.Errores, fmt.Sprintf("scan: leer %s: %v", EventsPath(r), err))
+	}
+	// Con eventos en los dos logs quedan en un solo orden por ts; el orden
+	// estable conserva el de cada log y, ante un empate, sdd antes que chiche.
+	// Un solo log queda en su orden.
+	if logs > 1 {
+		slices.SortStableFunc(d.Events, func(a, b events.Event) int { return strings.Compare(a.TS, b.TS) })
 	}
 	d.Grills = d.readArtifacts(r, "grill")
 	d.Specs = d.readArtifacts(r, "spec")
 	return d
 }
 
+// readLog suma los eventos de un log y dice si aportó alguno.
+func (d *Data) readLog(path string) bool {
+	f, err := os.Open(path)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			d.Errores = append(d.Errores, fmt.Sprintf("scan: leer %s: %v", path, err))
+		}
+		return false
+	}
+	log, rerr := events.ReadLog(f)
+	_ = f.Close() // solo lectura: un error al cerrar no invalida lo leído
+	d.Events = append(d.Events, log.Events...)
+	d.LineasInvalidas += log.Invalid + log.Unsupported
+	if rerr != nil {
+		d.Errores = append(d.Errores, rerr.Error())
+	}
+	return len(log.Events) > 0
+}
+
 func (d *Data) readArtifacts(r Repo, kind string) []Artifact {
 	seen := map[string]bool{}
 	var out []Artifact
 	for _, dir := range artifactDirs(r, kind) {
-		paths, _ := filepath.Glob(filepath.Join(dir, "*.md")) // el patrón es fijo y válido
+		paths, _ := filepath.Glob(filepath.Join(dir.path, "*.md")) // el patrón es fijo y válido
 		slices.Sort(paths)
 		for _, path := range paths {
 			name := filepath.Base(path)
@@ -60,7 +97,7 @@ func (d *Data) readArtifacts(r Repo, kind string) []Artifact {
 				continue
 			}
 			seen[name] = true
-			a, err := readArtifact(path, kind)
+			a, err := readArtifact(path, kind, dir.brand)
 			if err != nil {
 				d.Errores = append(d.Errores, err.Error())
 				continue
@@ -71,7 +108,7 @@ func (d *Data) readArtifacts(r Repo, kind string) []Artifact {
 	return out
 }
 
-func readArtifact(path, kind string) (Artifact, error) {
+func readArtifact(path, kind, brand string) (Artifact, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return Artifact{}, fmt.Errorf("scan: leer %s: %w", path, err)
@@ -86,7 +123,7 @@ func readArtifact(path, kind string) (Artifact, error) {
 		Kind:     kind,
 		Name:     name,
 		Path:     path,
-		Logical:  ".sdd/" + kind + "s/" + name,
+		Logical:  "." + brand + "/" + kind + "s/" + name,
 		Title:    firstHeading(text),
 		ModTime:  info.ModTime().UTC(),
 		Tracking: tracking.Parse(text),
@@ -114,11 +151,13 @@ func Stamp(r Repo) string {
 			fmt.Fprintf(&b, "%s:%d:%d;", path, info.Size(), info.ModTime().UnixNano())
 		}
 	}
-	add(EventsPath(r))
+	for _, path := range EventsPaths(r) {
+		add(path)
+	}
 	for _, kind := range []string{"grill", "spec"} {
 		for _, dir := range artifactDirs(r, kind) {
-			add(dir)
-			paths, _ := filepath.Glob(filepath.Join(dir, "*.md")) // patrón fijo
+			add(dir.path)
+			paths, _ := filepath.Glob(filepath.Join(dir.path, "*.md")) // patrón fijo
 			for _, p := range paths {
 				add(p)
 			}
