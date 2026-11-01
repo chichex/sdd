@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/events"
-	"github.com/chichex/sdd/internal/scan"
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/events"
+	"github.com/chichex/visor/internal/scan"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 func logData(t *testing.T, file, id string) scan.Data {

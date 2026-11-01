@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/chichex/sdd/internal/events"
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/scan"
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/events"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/scan"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 // item es un evento o un artefacto con su identidad ya resuelta.

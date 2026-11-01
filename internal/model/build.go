@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/chichex/sdd/internal/scan"
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/scan"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 var etapaRank = map[Etapa]int{Idea: 0, Grill: 1, Spec: 2, Run: 3, PR: 4, Mergeado: 5, Publicado: 6}

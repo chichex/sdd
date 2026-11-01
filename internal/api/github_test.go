@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/github/fake"
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/github/fake"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 type ghResp struct {

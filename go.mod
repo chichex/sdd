@@ -1,4 +1,4 @@
-module github.com/chichex/sdd
+module github.com/chichex/visor
 
 go 1.26
 

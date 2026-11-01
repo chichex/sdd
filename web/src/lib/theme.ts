@@ -2,7 +2,7 @@
 // CSS de tokens lo lee) y se recuerda en localStorage por navegador.
 export type Tema = 'claro' | 'oscuro' | 'sistema'
 
-const KEY = 'sdd-tema'
+const KEY = 'visor-tema'
 
 export function aplicarTema(t: Tema): void {
   const root = document.documentElement

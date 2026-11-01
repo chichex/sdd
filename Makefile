@@ -8,13 +8,13 @@ web:
 	cd web && npm ci && npm run build
 
 build: web
-	go build -ldflags "-X main.version=$(VERSION)-dev" -o bin/sdd ./cmd/sdd
+	go build -ldflags "-X main.version=$(VERSION)-dev" -o bin/visor ./cmd/visor
 
 test:
 	go vet ./... && go test ./...
 
 run: build
-	./bin/sdd --dir "$(DIR)"
+	./bin/visor --dir "$(DIR)"
 
 # Binarios del release: uno por plataforma, más checksums.txt.
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
@@ -31,8 +31,8 @@ release-assets:
 	@set -e; for p in $(PLATFORMS); do \
 		os=$${p%/*}; arch=$${p#*/}; ext=; \
 		if [ "$$os" = windows ]; then ext=.exe; fi; \
-		out=dist/release/sdd_$(VERSION)_$${os}_$${arch}$$ext; \
+		out=dist/release/visor_$(VERSION)_$${os}_$${arch}$$ext; \
 		echo "go build $$out"; \
-		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build -ldflags "-s -w -X main.version=$(VERSION)" -o $$out ./cmd/sdd; \
+		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch go build -ldflags "-s -w -X main.version=$(VERSION)" -o $$out ./cmd/visor; \
 	done
-	cd dist/release && sha256sum sdd_* > checksums.txt
+	cd dist/release && sha256sum visor_* > checksums.txt

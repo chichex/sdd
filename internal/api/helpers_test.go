@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 // queryTodas pide las cuatro categorías: todo lo que el server tiene.

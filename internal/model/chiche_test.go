@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/events"
-	"github.com/chichex/sdd/internal/scan"
+	"github.com/chichex/visor/internal/events"
+	"github.com/chichex/visor/internal/scan"
 )
 
 func chicheEv(ts, name, spec string, pr ...int) events.Event {

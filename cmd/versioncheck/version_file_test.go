@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chichex/sdd/internal/semver"
+	"github.com/chichex/visor/internal/semver"
 )
 
 // TestVersionFile valida el VERSION real de la raíz: una sola línea con

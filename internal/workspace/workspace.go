@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/model"
-	"github.com/chichex/sdd/internal/scan"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/model"
+	"github.com/chichex/visor/internal/scan"
 )
 
 // DefaultWatchInterval es el default de --watch-interval.

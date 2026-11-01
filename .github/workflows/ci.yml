@@ -42,7 +42,7 @@ jobs:
           path: web/dist
       - run: go vet ./...
       - run: go test ./...
-      - run: go build -o bin/sdd ./cmd/sdd
+      - run: go build -o bin/visor ./cmd/visor
 
   version:
     name: Version

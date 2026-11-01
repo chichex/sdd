@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chichex/sdd/internal/semver"
+	"github.com/chichex/visor/internal/semver"
 )
 
 const gitTimeout = 10 * time.Second

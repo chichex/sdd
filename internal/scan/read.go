@@ -9,8 +9,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/chichex/sdd/internal/events"
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/events"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 // brands son las dos marcas de la suite, en orden de precedencia: chiche (la

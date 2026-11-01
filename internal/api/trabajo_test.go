@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 func TestTrabajo_DetalleYNoEncontrado(t *testing.T) {

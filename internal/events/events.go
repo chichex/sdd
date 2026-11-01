@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 // Event es un evento events-v1 con las referencias decodificadas. Un campo que

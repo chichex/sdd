@@ -5,7 +5,7 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/chichex/sdd/internal/github"
+	"github.com/chichex/visor/internal/github"
 )
 
 // bodyLink reconoce `Closes #NN` y `Refs #NN` (también `owner/repo#NN`).

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 func TestStream_PingPeriodico(t *testing.T) {

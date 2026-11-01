@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/github/fake"
-	"github.com/chichex/sdd/internal/model"
+	"github.com/chichex/visor/internal/github/fake"
+	"github.com/chichex/visor/internal/model"
 )
 
 const (

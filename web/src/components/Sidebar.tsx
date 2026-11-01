@@ -63,7 +63,7 @@ export function Sidebar({ open, onOpenChange, returnFocus, repos, total, repo, t
         }}
         className="w-[280px] max-w-[85%] gap-2 overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:max-w-[280px]">
         <SheetHeader className="px-4 py-3">
-          <SheetTitle>sdd</SheetTitle>
+          <SheetTitle>visor</SheetTitle>
           <SheetDescription className="sr-only">Repo, categorías, etapas y tema del tablero</SheetDescription>
         </SheetHeader>
         <Seccion titulo="Repo">

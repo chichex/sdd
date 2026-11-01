@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/events"
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/scan"
+	"github.com/chichex/visor/internal/events"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/scan"
 )
 
 func TestBuild_Categoria(t *testing.T) {

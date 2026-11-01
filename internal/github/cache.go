@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-// CachePath es `<dir>/sdd/<owner>_<repo>.json`.
+// CachePath es `<dir>/visor/<owner>_<repo>.json`.
 func CachePath(dir, repo string) string {
-	return filepath.Join(dir, "sdd", strings.ReplaceAll(repo, "/", "_")+".json")
+	return filepath.Join(dir, "visor", strings.ReplaceAll(repo, "/", "_")+".json")
 }
 
 // LoadCache lee el último snapshot cacheado de un repo.
