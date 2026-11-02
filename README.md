@@ -55,6 +55,21 @@ Con `--host 0.0.0.0` el banner imprime la URL de la LAN con un QR para el
 celular. Si la máquina está en una tailnet, suma la URL de Tailscale: el nombre
 MagicDNS cuando `tailscale status` responde, si no la IP `100.x`.
 
+### Por ssh
+
+Si corrés el visor en una máquina a la que entraste por ssh, el `127.0.0.1` del
+banner es el de esa máquina, no el tuyo. El banner lo detecta (por
+`SSH_CONNECTION`) e imprime el túnel que tenés que abrir **desde tu máquina**:
+
+```sh
+ssh -N -L 4321:127.0.0.1:4321 chiche@chichex-linux   # en tu máquina, en otra terminal
+```
+
+Con eso abrís `http://127.0.0.1:4321` en tu navegador local. `-N` no abre
+shell: solo sostiene el túnel; cortalo con Ctrl-C. Si usás otro `--port`, el
+banner ya lo pone en el comando. La alternativa es levantar el visor con
+`--host 0.0.0.0` y entrar por la LAN o Tailscale, sin túnel.
+
 ## Versión y releases
 
 `VERSION`, en la raíz, es la única fuente de la versión: una sola línea

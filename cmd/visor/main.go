@@ -76,7 +76,7 @@ func main() {
 	if tcp, ok := ln.Addr().(*net.TCPAddr); ok {
 		listenPort = tcp.Port
 	}
-	info := bannerInfo{Host: *host, Port: listenPort, Root: root, Version: version}
+	info := bannerInfo{Host: *host, Port: listenPort, Root: root, Version: version, SSHHost: sshHost(os.Getenv, os.Hostname)}
 	if !isLoopback(*host) {
 		info.TailscaleDNS = tailscaleDNS() // solo si la URL puede servir
 	}

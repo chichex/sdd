@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"net"
 	"strings"
 	"testing"
@@ -103,6 +104,70 @@ func TestBanner_LocalConTailscale(t *testing.T) {
 	}
 	if !strings.Contains(text, "tailscale: corré con --host 0.0.0.0 para abrirlo desde tu tailnet\n") {
 		t.Fatalf("en loopback con Tailscale va la sugerencia del flag:\n%s", text)
+	}
+}
+
+func TestBanner_SSHLocal(t *testing.T) {
+	var out bytes.Buffer
+	banner(&out, bannerInfo{Host: "127.0.0.1", Port: 4321, Root: "/ws", Version: "1.2.3", SSHHost: "chiche@chichex-linux"}, addrs("192.168.1.23/24"))
+	text := out.String()
+	if !strings.Contains(text, "abrí http://127.0.0.1:4321\n") {
+		t.Fatalf("por ssh en loopback sigue la URL local:\n%s", text)
+	}
+	if !strings.Contains(text, "  ssh -N -L 4321:127.0.0.1:4321 chiche@chichex-linux\n") {
+		t.Fatalf("por ssh en loopback va el comando del túnel:\n%s", text)
+	}
+	if !strings.Contains(text, "--host 0.0.0.0") {
+		t.Fatalf("por ssh en loopback se sugiere la alternativa del flag:\n%s", text)
+	}
+}
+
+func TestBanner_SSHLAN(t *testing.T) {
+	var out bytes.Buffer
+	banner(&out, bannerInfo{Host: "0.0.0.0", Port: 4321, Root: "/ws", Version: "1.2.3", SSHHost: "chiche@chichex-linux"}, addrs("192.168.1.23/24"))
+	text := out.String()
+	if !strings.Contains(text, "abrí http://192.168.1.23:4321\n") {
+		t.Fatalf("por ssh en LAN sigue la URL LAN:\n%s", text)
+	}
+	if !strings.Contains(text, "ssh -N -L 4321:127.0.0.1:4321 chiche@chichex-linux") {
+		t.Fatalf("por ssh en LAN el túnel va como alternativa:\n%s", text)
+	}
+}
+
+func TestBanner_SinSSH(t *testing.T) {
+	for _, host := range []string{"127.0.0.1", "0.0.0.0"} {
+		var out bytes.Buffer
+		banner(&out, bannerInfo{Host: host, Port: 4321, Root: "/ws", Version: "1.2.3"}, addrs("192.168.1.23/24"))
+		if text := out.String(); strings.Contains(text, "ssh") {
+			t.Fatalf("sin sesión ssh no hay línea de ssh (host %s):\n%s", host, text)
+		}
+	}
+}
+
+func TestSSHHost(t *testing.T) {
+	env := func(vars map[string]string) func(string) string {
+		return func(k string) string { return vars[k] }
+	}
+	hostname := func(name string, err error) func() (string, error) {
+		return func() (string, error) { return name, err }
+	}
+	cases := []struct {
+		name     string
+		env      map[string]string
+		hostname func() (string, error)
+		want     string
+	}{
+		{"sin ssh", map[string]string{"USER": "chiche"}, hostname("chichex-linux", nil), ""},
+		{"ssh_connection", map[string]string{"SSH_CONNECTION": "1.2.3.4 5 6.7.8.9 22", "USER": "chiche"}, hostname("chichex-linux", nil), "chiche@chichex-linux"},
+		{"ssh_client", map[string]string{"SSH_CLIENT": "1.2.3.4 5 22", "USER": "chiche"}, hostname("chichex-linux", nil), "chiche@chichex-linux"},
+		{"ssh_tty", map[string]string{"SSH_TTY": "/dev/pts/1", "LOGNAME": "chiche"}, hostname("chichex-linux", nil), "chiche@chichex-linux"},
+		{"sin usuario", map[string]string{"SSH_CONNECTION": "x"}, hostname("chichex-linux", nil), "chichex-linux"},
+		{"sin hostname", map[string]string{"SSH_CONNECTION": "x", "USER": "chiche"}, hostname("", errors.New("nope")), "chiche@<esta-máquina>"},
+	}
+	for _, c := range cases {
+		if got := sshHost(env(c.env), c.hostname); got != c.want {
+			t.Errorf("%s: sshHost = %q, want %q", c.name, got, c.want)
+		}
 	}
 }
 
