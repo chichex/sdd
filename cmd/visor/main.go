@@ -33,7 +33,7 @@ import (
 var version = "0.0.0-dev"
 
 func main() {
-	host := flag.String("host", "127.0.0.1", "interfaz donde escucha; 0.0.0.0 para abrirlo desde la LAN")
+	host := flag.String("host", "127.0.0.1", "interfaz donde escucha; 0.0.0.0 para abrirlo desde la LAN o Tailscale")
 	port := flag.Int("port", 4321, "puerto")
 	dir := flag.String("dir", ".", "carpeta cuyos subdirectorios se escanean buscando .chiche/project.md o .sdd/project.md")
 	watch := flag.Duration("watch-interval", workspace.DefaultWatchInterval, "cada cuánto se revisan los logs y artefactos locales")
@@ -76,7 +76,11 @@ func main() {
 	if tcp, ok := ln.Addr().(*net.TCPAddr); ok {
 		listenPort = tcp.Port
 	}
-	banner(os.Stdout, bannerInfo{Host: *host, Port: listenPort, Root: root, Version: version}, net.InterfaceAddrs)
+	info := bannerInfo{Host: *host, Port: listenPort, Root: root, Version: version}
+	if !isLoopback(*host) {
+		info.TailscaleDNS = tailscaleDNS() // solo si la URL puede servir
+	}
+	banner(os.Stdout, info, net.InterfaceAddrs)
 
 	var wg sync.WaitGroup
 	wg.Add(1)

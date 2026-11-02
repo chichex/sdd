@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
+	"os/exec"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/skip2/go-qrcode"
 )
@@ -14,7 +19,13 @@ type bannerInfo struct {
 	Port    int
 	Root    string
 	Version string
+	// TailscaleDNS es el nombre MagicDNS de esta máquina, vacío si no se pudo
+	// averiguar. La IP 100.x se detecta aparte, mirando las interfaces.
+	TailscaleDNS string
 }
+
+// tailscaleNet es el rango CGNAT que Tailscale reserva para la tailnet.
+var tailscaleNet = net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
 
 // isLoopback: el default 127.0.0.1 y localhost solo se abren desde esta máquina.
 func isLoopback(host string) bool {
@@ -25,41 +36,107 @@ func isLoopback(host string) bool {
 	return ip != nil && ip.IsLoopback()
 }
 
-// lanIPv4 devuelve la primera IPv4 no loopback de las interfaces.
-func lanIPv4(addrs func() ([]net.Addr, error)) string {
+// ipv4s devuelve las IPv4 no loopback de las interfaces, en orden.
+func ipv4s(addrs func() ([]net.Addr, error)) []net.IP {
 	list, err := addrs()
 	if err != nil {
-		return ""
+		return nil
 	}
+	var out []net.IP
 	for _, a := range list {
 		if n, ok := a.(*net.IPNet); ok && !n.IP.IsLoopback() && n.IP.To4() != nil {
-			return n.IP.String()
+			out = append(out, n.IP.To4())
+		}
+	}
+	return out
+}
+
+// lanIPv4 devuelve la primera IPv4 de la LAN, dejando afuera la de Tailscale.
+func lanIPv4(addrs func() ([]net.Addr, error)) string {
+	for _, ip := range ipv4s(addrs) {
+		if !tailscaleNet.Contains(ip) {
+			return ip.String()
 		}
 	}
 	return ""
 }
 
+// tailscaleIPv4 devuelve la IPv4 de la tailnet, vacío si no hay Tailscale.
+func tailscaleIPv4(addrs func() ([]net.Addr, error)) string {
+	for _, ip := range ipv4s(addrs) {
+		if tailscaleNet.Contains(ip) {
+			return ip.String()
+		}
+	}
+	return ""
+}
+
+// magicDNS saca el nombre MagicDNS de la salida de `tailscale status --json`.
+func magicDNS(out []byte) string {
+	var status struct {
+		Self struct{ DNSName string }
+	}
+	if err := json.Unmarshal(out, &status); err != nil {
+		return ""
+	}
+	return strings.TrimSuffix(status.Self.DNSName, ".")
+}
+
+// tailscaleDNS pregunta al CLI el nombre MagicDNS. Sin `tailscale` en el PATH
+// o con el daemon caído devuelve vacío: el banner se arregla con la IP 100.x.
+func tailscaleDNS() string {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "tailscale", "status", "--json").Output()
+	if err != nil {
+		return ""
+	}
+	return magicDNS(out)
+}
+
 // banner imprime cómo abrir el visor. Escuchando en la LAN suma un QR de la
-// URL (para el celular) y el aviso de que no hay autenticación.
+// URL (para el celular), la URL por Tailscale si la máquina está en una
+// tailnet, y el aviso de que no hay autenticación.
 func banner(w io.Writer, info bannerInfo, addrs func() ([]net.Addr, error)) {
 	fmt.Fprintf(w, "visor %s · escaneando %s\n", info.Version, info.Root)
+	port := strconv.Itoa(info.Port)
 	host := info.Host
+	tsIP := tailscaleIPv4(addrs)
 	if isLoopback(host) {
-		fmt.Fprintf(w, "abrí http://%s\n", net.JoinHostPort(host, strconv.Itoa(info.Port)))
+		fmt.Fprintf(w, "abrí http://%s\n", net.JoinHostPort(host, port))
+		if tsIP != "" {
+			fmt.Fprintln(w, "tailscale: corré con --host 0.0.0.0 para abrirlo desde tu tailnet")
+		}
 		return
 	}
+	unspecified := false
 	if ip := net.ParseIP(host); host == "" || (ip != nil && ip.IsUnspecified()) {
+		unspecified = true
 		host = lanIPv4(addrs)
+		if host == "" {
+			host = tsIP
+		}
 	}
 	if host == "" {
 		host = "127.0.0.1"
 	}
-	url := "http://" + net.JoinHostPort(host, strconv.Itoa(info.Port))
+	url := "http://" + net.JoinHostPort(host, port)
 	fmt.Fprintf(w, "abrí %s\n", url)
 	// Nivel L: una URL LAN entra en la versión 2 (25 módulos + 4 de borde
 	// por lado = 33 de ancho), que la terminal del celular escanea sin zoom.
 	if qr, err := qrcode.New(url, qrcode.Low); err == nil {
 		fmt.Fprint(w, qr.ToSmallString(false))
+	}
+	// La URL de Tailscale solo sirve si el server escucha en esa interfaz:
+	// con 0.0.0.0 o con la propia IP 100.x. Con MagicDNS va el nombre.
+	if tsIP != "" && (unspecified || host == tsIP) {
+		tsHost := tsIP
+		if info.TailscaleDNS != "" {
+			tsHost = info.TailscaleDNS
+		}
+		if tsHost != host {
+			fmt.Fprintf(w, "tailscale: http://%s\n", net.JoinHostPort(tsHost, port))
+		}
 	}
 	fmt.Fprintln(w, "aviso: escuchando en la red local, sin autenticación")
 }

@@ -47,9 +47,13 @@ Node hace falta solo para buildear el front; el binario no lo necesita.
 ```sh
 make build          # npm ci + vite build + go build → bin/visor
 ./bin/visor --dir ~/workspace
-./bin/visor --dir ~/workspace --host 0.0.0.0   # para abrirlo desde la LAN
+./bin/visor --dir ~/workspace --host 0.0.0.0   # para abrirlo desde la LAN o Tailscale
 make test
 ```
+
+Con `--host 0.0.0.0` el banner imprime la URL de la LAN con un QR para el
+celular. Si la máquina está en una tailnet, suma la URL de Tailscale: el nombre
+MagicDNS cuando `tailscale status` responde, si no la IP `100.x`.
 
 ## Versión y releases
 
