@@ -44,8 +44,11 @@ if [ -n "${VISOR_VERSION:-}" ]; then
 	version="${VISOR_VERSION#v}"
 else
 	# /releases/latest redirige a /releases/tag/v<version>: sin API ni rate limit.
-	url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest") ||
+	# La query string única evita que el CDN de GitHub sirva un redirect viejo
+	# durante los minutos posteriores a publicar un release.
+	url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest?t=$(date +%s)") ||
 		fail "no pude consultar el último release de $REPO"
+	url="${url%%\?*}"
 	version="${url##*/tag/v}"
 	[ "$version" != "$url" ] || fail "no reconozco el último release: $url"
 fi
