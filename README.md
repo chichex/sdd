@@ -19,6 +19,26 @@ Lee las dos marcas de la suite, la actual (`chiche`) y la anterior (`sdd`):
 Estado: esqueleto. Las decisiones de producto están en
 [`.sdd/grills/2026-10-23-visor-flujo-sdd.md`](.sdd/grills/2026-10-23-visor-flujo-sdd.md).
 
+## Instalación
+
+Un solo comando instala o actualiza el binario en `~/.local/bin` (Linux y
+macOS, amd64 y arm64):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/chichex/visor/main/install.sh | sh
+```
+
+`install.sh` baja el último release, verifica el binario contra `checksums.txt`
+y no hace nada si esa versión ya está instalada. Sirve desde `v0.3.0`: los
+releases anteriores publicaron binarios con el nombre viejo `sdd_*`. Para fijar
+una versión o la carpeta destino:
+
+```sh
+VISOR_VERSION=0.3.0 VISOR_INSTALL_DIR=/usr/local/bin sh install.sh
+```
+
+En Windows, bajá el `.exe` de [Releases](https://github.com/chichex/visor/releases).
+
 ## Cómo se construye
 
 Binario Go con el front (Vite + React + TypeScript) embebido con `go:embed`.
