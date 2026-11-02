@@ -42,7 +42,7 @@ func lanIPv4(addrs func() ([]net.Addr, error)) string {
 // banner imprime cómo abrir el visor. Escuchando en la LAN suma un QR de la
 // URL (para el celular) y el aviso de que no hay autenticación.
 func banner(w io.Writer, info bannerInfo, addrs func() ([]net.Addr, error)) {
-	fmt.Fprintf(w, "sdd %s · escaneando %s\n", info.Version, info.Root)
+	fmt.Fprintf(w, "visor %s · escaneando %s\n", info.Version, info.Root)
 	host := info.Host
 	if isLoopback(host) {
 		fmt.Fprintf(w, "abrí http://%s\n", net.JoinHostPort(host, strconv.Itoa(info.Port)))

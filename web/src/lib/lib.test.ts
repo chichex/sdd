@@ -81,7 +81,7 @@ describe('tema', () => {
   it('persiste en localStorage y vuelve a sistema sin dato', () => {
     expect(leerTema()).toBe('sistema')
     guardarTema('oscuro')
-    expect(window.localStorage.getItem('sdd-tema')).toBe('oscuro')
+    expect(window.localStorage.getItem('visor-tema')).toBe('oscuro')
     expect(leerTema()).toBe('oscuro')
   })
   it('sin storage no rompe', () => {

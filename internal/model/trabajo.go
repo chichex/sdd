@@ -4,8 +4,8 @@
 package model
 
 import (
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/scan"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/scan"
 )
 
 // Etapa es una de las siete etapas del flujo SDD.

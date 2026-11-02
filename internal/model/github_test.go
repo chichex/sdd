@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/github/fake"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/github/fake"
 )
 
 func snapshot(t *testing.T, repo string) *github.Snapshot {

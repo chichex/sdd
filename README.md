@@ -1,6 +1,6 @@
-# sdd
+# visor
 
-Visor local del flujo SDD. Muestra cómo cada *trabajo* avanza por
+Visor local del flujo chiche (antes SDD). Antes `chichex/sdd`; ahora `chichex/visor`. Muestra cómo cada *trabajo* avanza por
 Idea → Grill → Spec → Run → PR → Mergeado → Publicado en todos los repos de una
 carpeta, como grafo con ramas en carriles por etapa y con un detalle tipo Gantt.
 Solo lectura. Consume el log `events-v1` y los markers `Chiche-Tracking v2` y
@@ -25,9 +25,9 @@ Binario Go con el front (Vite + React + TypeScript) embebido con `go:embed`.
 Node hace falta solo para buildear el front; el binario no lo necesita.
 
 ```sh
-make build          # npm ci + vite build + go build → bin/sdd
-./bin/sdd --dir ~/workspace
-./bin/sdd --dir ~/workspace --host 0.0.0.0   # para abrirlo desde la LAN
+make build          # npm ci + vite build + go build → bin/visor
+./bin/visor --dir ~/workspace
+./bin/visor --dir ~/workspace --host 0.0.0.0   # para abrirlo desde la LAN
 make test
 ```
 
@@ -44,9 +44,9 @@ make test
   repite el check, compila con `make release-assets` y publica el release
   `v<VERSION>` con notas generadas desde los PRs. El tag lo crea ese workflow en
   el commit de merge; nunca se crea a mano.
-- **Binarios**: en [Releases](https://github.com/chichex/sdd/releases), uno por
-  plataforma (`sdd_<v>_<os>_<arch>`, con `.exe` en Windows) más `checksums.txt`
-  (verificable con `sha256sum -c checksums.txt`). `sdd --version` imprime la
+- **Binarios**: en [Releases](https://github.com/chichex/visor/releases), uno por
+  plataforma (`visor_<v>_<os>_<arch>`, con `.exe` en Windows) más `checksums.txt`
+  (verificable con `sha256sum -c checksums.txt`). `visor --version` imprime la
   versión; `make build` compila `<VERSION>-dev` para uso local.
 - **Check requerido**: en GitHub, Settings → Branches → regla de `main` →
   «Require status checks to pass» → marcar `Version`. Hasta entonces, un merge

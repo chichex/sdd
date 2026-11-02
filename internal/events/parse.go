@@ -10,7 +10,7 @@ import (
 	"math"
 	"slices"
 
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 // Kind clasifica el resultado del parseo de una línea.

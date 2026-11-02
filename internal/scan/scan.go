@@ -6,8 +6,8 @@ package scan
 import (
 	"time"
 
-	"github.com/chichex/sdd/internal/events"
-	"github.com/chichex/sdd/internal/tracking"
+	"github.com/chichex/visor/internal/events"
+	"github.com/chichex/visor/internal/tracking"
 )
 
 // Repo es un repo descubierto: una o más rutas (worktrees) que comparten

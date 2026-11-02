@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/scan"
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/scan"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 func TestWorkspace_FixtureCompleto(t *testing.T) {

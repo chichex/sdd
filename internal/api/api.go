@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chichex/sdd/internal/model"
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/model"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 // Source es de donde la API lee el estado: la foto actual, los avisos de

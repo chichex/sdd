@@ -1,4 +1,4 @@
-// Command sdd levanta el visor local del flujo SDD: un server HTTP que sirve
+// Command visor levanta el visor local del flujo SDD: un server HTTP que sirve
 // el front embebido y una API JSON sobre los repos de una carpeta.
 package main
 
@@ -21,10 +21,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/chichex/sdd/internal/api"
-	"github.com/chichex/sdd/internal/github"
-	"github.com/chichex/sdd/internal/workspace"
-	"github.com/chichex/sdd/web"
+	"github.com/chichex/visor/internal/api"
+	"github.com/chichex/visor/internal/github"
+	"github.com/chichex/visor/internal/workspace"
+	"github.com/chichex/visor/web"
 )
 
 // version la reemplaza el build con -ldflags "-X main.version=<v>": `make build`
@@ -43,7 +43,7 @@ func main() {
 	showVersion := flag.Bool("version", false, "imprimir la versión y salir")
 	flag.Parse()
 	if *showVersion {
-		fmt.Printf("sdd %s\n", version)
+		fmt.Printf("visor %s\n", version)
 		return
 	}
 

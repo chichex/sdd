@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/github/fake"
+	"github.com/chichex/visor/internal/github/fake"
 )
 
 var now = time.Date(2026, 10, 27, 12, 0, 0, 0, time.UTC)

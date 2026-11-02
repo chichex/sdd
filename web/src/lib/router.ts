@@ -40,7 +40,7 @@ export function filtersQuery(f: Filters): string {
   return query ? `?${query}` : ''
 }
 
-export const NAVIGATE_EVENT = 'sdd:navigate'
+export const NAVIGATE_EVENT = 'visor:navigate'
 
 /** Escribe los filtros en la URL actual sin sumar una entrada de historia. */
 export function writeFilters(f: Filters): void {

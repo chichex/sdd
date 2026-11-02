@@ -19,7 +19,7 @@ export interface NavProps {
 export function NavegacionDesktop(p: NavProps) {
   return (
     <header className="flex h-12 items-center gap-3 border-b bg-bg px-6">
-      <span className="text-base font-semibold">sdd</span>
+      <span className="text-base font-semibold">visor</span>
       <RepoSelect repos={p.repos} total={p.total} value={p.repo} onChange={p.onRepo} />
       <div className="flex-1" />
       {p.refresh}
@@ -28,7 +28,7 @@ export function NavegacionDesktop(p: NavProps) {
   )
 }
 
-/** Cabecera de celular: hamburguesa, «sdd · <repo>» y Refresh, sin segunda fila. */
+/** Cabecera de celular: hamburguesa, «visor · <repo>» y Refresh, sin segunda fila. */
 export function NavegacionCelular({ repo, onMenu, refresh, menuRef }: {
   repo: string | null
   onMenu: () => void
@@ -40,7 +40,7 @@ export function NavegacionCelular({ repo, onMenu, refresh, menuRef }: {
       <Button ref={menuRef} variant="ghost" size="icon" aria-label="Menú" onClick={onMenu} className="size-11">
         <Menu aria-hidden className="size-5" />
       </Button>
-      <span className="min-w-0 flex-1 truncate text-base font-semibold">{`sdd · ${repo ?? 'todos los repos'}`}</span>
+      <span className="min-w-0 flex-1 truncate text-base font-semibold">{`visor · ${repo ?? 'todos los repos'}`}</span>
       {refresh}
     </header>
   )

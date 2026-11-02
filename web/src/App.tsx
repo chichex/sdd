@@ -62,7 +62,7 @@ export default function App() {
   if (!listo) contenido = <BoardSkeleton />
   else if (data && data.repos.length === 0)
     contenido = (
-      <EmptyState comando="sdd --dir <otra carpeta>">No hay repos con .chiche/project.md ni .sdd/project.md bajo {data.root}. Corré el visor en otra carpeta:</EmptyState>
+      <EmptyState comando="visor --dir <otra carpeta>">No hay repos con .chiche/project.md ni .sdd/project.md bajo {data.root}. Corré el visor en otra carpeta:</EmptyState>
     )
   else if (base.length > 0 && vista.visibles.length === 0)
     contenido = (

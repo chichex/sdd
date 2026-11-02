@@ -3,7 +3,7 @@ package model
 import (
 	"regexp"
 
-	"github.com/chichex/sdd/internal/scan"
+	"github.com/chichex/visor/internal/scan"
 )
 
 // brandedSpec separa una ruta de spec en su marca (chiche o sdd) y el resto.

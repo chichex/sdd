@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/chichex/sdd/internal/model"
-	"github.com/chichex/sdd/internal/workspace"
+	"github.com/chichex/visor/internal/model"
+	"github.com/chichex/visor/internal/workspace"
 )
 
 type githubView struct {

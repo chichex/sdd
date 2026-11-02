@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chichex/sdd/internal/github/fake"
+	"github.com/chichex/visor/internal/github/fake"
 )
 
 // fakeClock entrega un canal por cada After y deja que el test lo dispare.
@@ -136,7 +136,7 @@ func TestPoller_FallaDeUnRepoNoAfectaAOtros(t *testing.T) {
 
 func TestCache_RutaYRoundTrip(t *testing.T) {
 	dir := t.TempDir()
-	if got := CachePath(dir, "chichex/waica"); got != filepath.Join(dir, "sdd", "chichex_waica.json") {
+	if got := CachePath(dir, "chichex/waica"); got != filepath.Join(dir, "visor", "chichex_waica.json") {
 		t.Fatalf("CachePath = %q", got)
 	}
 	gh := &fake.Runner{T: t, Dir: "../../testdata/gh"}

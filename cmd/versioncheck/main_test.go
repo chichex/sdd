@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chichex/sdd/internal/semver"
+	"github.com/chichex/visor/internal/semver"
 )
 
 func TestCheck_VersionContraTags(t *testing.T) {
