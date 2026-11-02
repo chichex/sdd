@@ -33,7 +33,7 @@ import (
 var version = "0.0.0-dev"
 
 func main() {
-	host := flag.String("host", "127.0.0.1", "interfaz donde escucha; 0.0.0.0 para abrirlo desde la LAN o Tailscale")
+	host := flag.String("host", "", "interfaz donde escucha (default 127.0.0.1; dentro de una sesión ssh con Tailscale, la IP 100.x de la tailnet); 0.0.0.0 para abrirlo desde la LAN")
 	port := flag.Int("port", 4321, "puerto")
 	dir := flag.String("dir", ".", "carpeta cuyos subdirectorios se escanean buscando .chiche/project.md o .sdd/project.md")
 	watch := flag.Duration("watch-interval", workspace.DefaultWatchInterval, "cada cuánto se revisan los logs y artefactos locales")
@@ -68,7 +68,9 @@ func main() {
 	api.New(svc, version).Register(mux)
 	mux.Handle("/", spaHandler(web.Dist()))
 
-	ln, err := net.Listen("tcp", net.JoinHostPort(*host, strconv.Itoa(*port)))
+	ssh := sshHost(os.Getenv, os.Hostname)
+	listenHost := resolveHost(*host, ssh != "", tailscaleIPv4(net.InterfaceAddrs))
+	ln, err := net.Listen("tcp", net.JoinHostPort(listenHost, strconv.Itoa(*port)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,8 +78,8 @@ func main() {
 	if tcp, ok := ln.Addr().(*net.TCPAddr); ok {
 		listenPort = tcp.Port
 	}
-	info := bannerInfo{Host: *host, Port: listenPort, Root: root, Version: version}
-	if !isLoopback(*host) {
+	info := bannerInfo{Host: listenHost, Port: listenPort, Root: root, Version: version, SSHHost: ssh}
+	if !isLoopback(listenHost) {
 		info.TailscaleDNS = tailscaleDNS() // solo si la URL puede servir
 	}
 	banner(os.Stdout, info, net.InterfaceAddrs)
