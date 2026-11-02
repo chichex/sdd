@@ -49,6 +49,20 @@ func sshHost(getenv func(string) string, hostname func() (string, error)) string
 	return user + "@" + name
 }
 
+// resolveHost elige dónde escuchar cuando no se pasó --host: loopback, salvo
+// dentro de una sesión ssh con Tailscale, donde escucha solo en la IP 100.x
+// para que el cliente lo abra desde la tailnet sin túnel ni segunda terminal.
+// Un --host explícito siempre gana.
+func resolveHost(flagHost string, ssh bool, tsIP string) string {
+	if flagHost != "" {
+		return flagHost
+	}
+	if ssh && tsIP != "" {
+		return tsIP
+	}
+	return "127.0.0.1"
+}
+
 // sshTunnel es el comando que, corrido en la máquina del cliente, trae el
 // puerto del visor a su 127.0.0.1. -N no abre shell: solo mantiene el túnel.
 func sshTunnel(info bannerInfo) string {
@@ -142,7 +156,7 @@ func banner(w io.Writer, info bannerInfo, addrs func() ([]net.Addr, error)) {
 			// solo se llega con un túnel (o abriendo el server a la red).
 			fmt.Fprintln(w, "ssh: estás por ssh y el visor solo escucha en esta máquina. Desde la tuya corré")
 			fmt.Fprintf(w, "  %s\n", sshTunnel(info))
-			fmt.Fprintf(w, "y abrí %s ahí; o levantá el visor con --host 0.0.0.0 y entrá por la LAN o Tailscale\n", localURL)
+			fmt.Fprintf(w, "y abrí %s ahí (si ese puerto está ocupado en tu máquina, cambiá el primer número); o levantá el visor con --host 0.0.0.0 y entrá por la LAN o Tailscale\n", localURL)
 		}
 		if tsIP != "" {
 			fmt.Fprintln(w, "tailscale: corré con --host 0.0.0.0 para abrirlo desde tu tailnet")
@@ -159,6 +173,12 @@ func banner(w io.Writer, info bannerInfo, addrs func() ([]net.Addr, error)) {
 	}
 	if host == "" {
 		host = "127.0.0.1"
+	}
+	// Escuchando solo en la tailnet (--host 100.x o elegido por ssh) la URL
+	// principal es la MagicDNS: es la que se escribe desde otra máquina.
+	tailnetOnly := !unspecified && host == tsIP
+	if tailnetOnly && info.TailscaleDNS != "" {
+		host = info.TailscaleDNS
 	}
 	url := "http://" + net.JoinHostPort(host, port)
 	fmt.Fprintf(w, "abrí %s\n", url)
@@ -177,6 +197,13 @@ func banner(w io.Writer, info bannerInfo, addrs func() ([]net.Addr, error)) {
 		if tsHost != host {
 			fmt.Fprintf(w, "tailscale: http://%s\n", net.JoinHostPort(tsHost, port))
 		}
+	}
+	if tailnetOnly {
+		if info.SSHHost != "" {
+			fmt.Fprintln(w, "ssh: escucho en Tailscale para que lo abras desde tu máquina sin túnel; --host 127.0.0.1 lo deja solo local")
+		}
+		fmt.Fprintln(w, "aviso: escuchando solo en tu tailnet, sin autenticación")
+		return
 	}
 	if info.SSHHost != "" {
 		fmt.Fprintf(w, "ssh: si esa red no te llega, desde tu máquina corré `%s` y abrí http://127.0.0.1:%s\n", sshTunnel(info), port)

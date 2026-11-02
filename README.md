@@ -57,18 +57,34 @@ MagicDNS cuando `tailscale status` responde, si no la IP `100.x`.
 
 ### Por ssh
 
-Si corrés el visor en una máquina a la que entraste por ssh, el `127.0.0.1` del
-banner es el de esa máquina, no el tuyo. El banner lo detecta (por
-`SSH_CONNECTION`) e imprime el túnel que tenés que abrir **desde tu máquina**:
+Si corrés el visor en una máquina a la que entraste por ssh, un `127.0.0.1` es
+el de esa máquina, no el tuyo. El visor detecta la sesión (por `SSH_CONNECTION`)
+y resuelve según tenga Tailscale o no:
 
-```sh
-ssh -N -L 4321:127.0.0.1:4321 chiche@chichex-linux   # en tu máquina, en otra terminal
-```
+- **Con Tailscale**: escucha solo en la IP `100.x` de la tailnet (no en la LAN)
+  y el banner imprime la URL MagicDNS. La abrís desde tu máquina y listo, sin
+  túnel ni segunda terminal:
 
-Con eso abrís `http://127.0.0.1:4321` en tu navegador local. `-N` no abre
-shell: solo sostiene el túnel; cortalo con Ctrl-C. Si usás otro `--port`, el
-banner ya lo pone en el comando. La alternativa es levantar el visor con
-`--host 0.0.0.0` y entrar por la LAN o Tailscale, sin túnel.
+  ```
+  abrí http://chichex-linux.tail8ca4e8.ts.net:4321
+  ssh: escucho en Tailscale para que lo abras desde tu máquina sin túnel; --host 127.0.0.1 lo deja solo local
+  aviso: escuchando solo en tu tailnet, sin autenticación
+  ```
+
+- **Sin Tailscale**: sigue en `127.0.0.1` y el banner imprime el túnel que
+  tenés que abrir **desde tu máquina**, en otra terminal:
+
+  ```sh
+  ssh -N -L 4321:127.0.0.1:4321 chiche@chichex-linux
+  ```
+
+  Con eso abrís `http://127.0.0.1:4321` en tu navegador local. `-N` no abre
+  shell: solo sostiene el túnel; cortalo con Ctrl-C. Si el puerto está ocupado
+  en tu máquina (`bind: Address already in use`), cambiá el primer número:
+  `-L 4322:127.0.0.1:4321` y abrís `http://127.0.0.1:4322`.
+
+Un `--host` explícito siempre gana: `--host 127.0.0.1` lo deja solo local
+aunque haya Tailscale, `--host 0.0.0.0` lo abre a la LAN.
 
 ## Versión y releases
 

@@ -120,6 +120,59 @@ func TestBanner_SSHLocal(t *testing.T) {
 	if !strings.Contains(text, "--host 0.0.0.0") {
 		t.Fatalf("por ssh en loopback se sugiere la alternativa del flag:\n%s", text)
 	}
+	if !strings.Contains(text, "ocupado") {
+		t.Fatalf("por ssh en loopback va el tip del puerto local ocupado:\n%s", text)
+	}
+}
+
+func TestBanner_SSHTailscale(t *testing.T) {
+	var out bytes.Buffer
+	banner(&out, bannerInfo{Host: "100.110.35.128", Port: 4321, Root: "/ws", Version: "1.2.3", SSHHost: "chiche@chichex-linux", TailscaleDNS: "chichex-linux.tail8ca4e8.ts.net"}, addrs("192.168.1.23/24", "100.110.35.128/32"))
+	text := out.String()
+	if !strings.Contains(text, "abrí http://chichex-linux.tail8ca4e8.ts.net:4321\n") {
+		t.Fatalf("escuchando en Tailscale la URL principal es la MagicDNS:\n%s", text)
+	}
+	if strings.Contains(text, "-L ") || strings.Contains(text, "192.168") {
+		t.Fatalf("escuchando en Tailscale no hace falta túnel ni URL LAN:\n%s", text)
+	}
+	if !strings.Contains(text, "ssh: ") || !strings.Contains(text, "--host 127.0.0.1") {
+		t.Fatalf("por ssh se explica que se eligió Tailscale y cómo volver a loopback:\n%s", text)
+	}
+	if !strings.Contains(text, "aviso: escuchando solo en tu tailnet, sin autenticación\n") {
+		t.Fatalf("el aviso dice tailnet, no red local:\n%s", text)
+	}
+	if len(qrLines(text)) < 10 {
+		t.Fatalf("en Tailscale también va el QR para el celular:\n%s", text)
+	}
+}
+
+func TestBanner_TailscaleExplicitoSinSSH(t *testing.T) {
+	var out bytes.Buffer
+	banner(&out, bannerInfo{Host: "100.110.35.128", Port: 4321, Root: "/ws", Version: "1.2.3"}, addrs("100.110.35.128/32"))
+	text := out.String()
+	if !strings.Contains(text, "abrí http://100.110.35.128:4321\n") || strings.Contains(text, "ssh") {
+		t.Fatalf("--host 100.x sin ssh: URL por IP y sin línea de ssh:\n%s", text)
+	}
+}
+
+func TestResolveHost(t *testing.T) {
+	cases := []struct {
+		name, flag, tsIP string
+		ssh              bool
+		want             string
+	}{
+		{"default local", "", "", false, "127.0.0.1"},
+		{"default con tailscale sin ssh", "", "100.110.35.128", false, "127.0.0.1"},
+		{"ssh sin tailscale", "", "", true, "127.0.0.1"},
+		{"ssh con tailscale", "", "100.110.35.128", true, "100.110.35.128"},
+		{"flag gana", "127.0.0.1", "100.110.35.128", true, "127.0.0.1"},
+		{"flag 0.0.0.0", "0.0.0.0", "100.110.35.128", true, "0.0.0.0"},
+	}
+	for _, c := range cases {
+		if got := resolveHost(c.flag, c.ssh, c.tsIP); got != c.want {
+			t.Errorf("%s: resolveHost(%q, %v, %q) = %q, want %q", c.name, c.flag, c.ssh, c.tsIP, got, c.want)
+		}
+	}
 }
 
 func TestBanner_SSHLAN(t *testing.T) {
